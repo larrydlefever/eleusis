@@ -1,0 +1,52 @@
+.card {
+    width:74px;
+    height:97px;
+    border: 2px solid #CCCCCC;
+    background-image: url(cards.png);
+    background-repeat: no-repeat;
+    background-position: 0px 0px;
+    float: left
+}
+.card:hover {border: 2px solid #0000FF}
+.cardFlash {border-color: #0000FF}
+
+.actionBtn {
+    background-color: yellow;
+    color: blue;
+    text-align:center;
+    cursor: pointer;
+    border: 2px solid blue;
+}
+.actionBtn:hover {
+    background-color: blue;
+    color: yellow;
+}
+
+.card-left {
+    width:74px;
+    height:97px;
+    border: 2px solid #CCCCCC;
+    margin-top: 2px;
+    background-image: url(cards.png);
+    background-repeat: no-repeat;
+    background-position: 0px 0px;
+}
+.card-left:hover {border: 2px solid #0000FF}
+
+.card-right {
+    width:74px;
+    height:97px;
+    border: 2px solid #CCCCCC;
+    margin-top: 2px;
+    background-image: url(cards.png);
+    background-repeat: no-repeat;
+    background-position: 0px 0px;
+}
+.card-right:hover {border: 2px solid #0000FF}
+
+.cardFlash {border-color: #0000FF}
+.msgFlash {background-color: yellow}
+
+.playerUname {
+    font-weight:bold
+}

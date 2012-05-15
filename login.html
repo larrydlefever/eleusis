@@ -1,0 +1,110 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>Eleusis - Login</title>
+    <script type="text/javascript" src="jquery.min.js"></script>
+    <script type="text/javascript" src="jquery.base64.js"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function() {
+
+            function log(msg) {
+                if(window.console) {
+                    console.log(msg);
+                }
+            }
+
+            $.ajaxSetup({
+                cache: false
+            });
+
+            function execRemote(cmd, dataToPOST, unamePwEncoded, callback) {
+
+                var data = {cmd: cmd, dataPosted: dataToPOST};
+                var httpMethod = dataToPOST != null ? "POST" : "GET";
+
+                $.ajax({
+                     //from: http://dothow.blogspot.com/2009/05/http-basic-authentication-with-jquery.html
+                     beforeSend: function(xhr) {
+                        xhr.setRequestHeader("Authorization", "Basic " + unamePwEncoded);
+                        log("set Authorization-header with: " + unamePwEncoded);
+                     },
+                    type: httpMethod,
+                    url: "exec",
+                    data: data,
+                    success: callback
+                });
+            }
+
+            //TODO: below, need to handle login-failures!
+
+            function doLoginOrRegister(cmd) {
+                var uname = $('#username').val();
+                if(!uname) {
+                    alert("ERROR: Username is required!");
+                    return;
+                }
+                var pw = $('#password').val();
+                if(!pw) {
+                    alert("ERROR: Password is required!");
+                    return;
+                }
+                $('#msgs').val("One moment please ...");
+                var authHdrVal = uname + ":" + pw;
+                authHdrVal = $.base64.encode(authHdrVal);
+                log("authHrdVal: " + authHdrVal);
+                execRemote(cmd, null, authHdrVal, loginCallback);
+            }
+
+            $("#loginBtn").click(function() {
+                doLoginOrRegister('login');
+            });
+
+            $("#registerBtn").click(function() {
+                doLoginOrRegister('register');
+            });
+
+            function loginCallback(data) {
+                if(data.result.loginResult.redirectTarget) {
+                    window.location = data.result.loginResult.redirectTarget;
+                } else {
+                    $('#msgs').html(data.result.loginResult.msg);
+                }
+            }
+        });
+
+    </script>
+</head>
+<body style="background-image: url(eleusis-main-background-q4_6.png);
+             background-repeat: no-repeat;
+             background-attachment:fixed;
+             background-position:center;
+             background-color: #DDDDDD;">
+
+<center>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <font face="arial">
+    <div style="background-color: white; width:350px; height: 225px; border: 3px solid black;">
+        <br/>
+        <center>
+            <b>Robert Abbot's Game of Eleusis</b><br/>
+            <font size=-1>(developed by Larry LeFever)</font><br/><br/>
+            Login/Register
+        </center>
+        <div id="msgs" style="color:blue"></div><br/>
+        <form id="loginForm" onsubmit="return false">
+            username: <input type="text" id="username"><br/>
+            password: <input type="password" id="password"><br/>
+            <button id="loginBtn">Login</button> or <button id="registerBtn">Register</button>
+        </form>
+        <font size="-2">NOTE: users of <b>Safari</b> and <b>MSIE</b> probably won't enjoy this game. :-/</font>
+    </div>
+    </font>
+</center>
+
+</body>
+</html>

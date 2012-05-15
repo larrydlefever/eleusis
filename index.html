@@ -1,0 +1,261 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>Eleusis</title>
+    <link rel="stylesheet" type="text/css" href="eleusis.css" />
+    <link type="text/css" href="jquery-ui-1.8.19.custom.css" rel="stylesheet" />
+
+    <script type="text/javascript" src="jquery.min.js"></script>
+    <script type="text/javascript" src="jquery-ui-1.8.19.custom.min.js"></script>
+
+    <script type="text/javascript" src="node_modules/faye/faye-browser-min.js"></script>
+    <script type="text/javascript" src="eleusis_common.js"></script>
+    <script type="text/javascript" src="eleusis_client.js"></script>
+    <script type="text/javascript" src="eleusis_app.js"></script>
+</head>
+<body style="position: relative;" bgcolor="#cccccc">
+<font face="arial">
+<center>
+    <font size="+1"><b>Eleusis</b> <br/> Robert Abbott's Game of Inductive Reasoning</font><br/>
+    (web-app developed by Larry LeFever)<br/>
+
+<div id="root" style="position: relative">
+
+    <div id="topRow" style="position: relative; width: 800px; height: 120px; border: 1px solid #0000FF">
+
+        <hr>
+
+        <table width="100%">
+            <tr valign="top">
+                <td width="30%">
+                    <div>
+                        <form id="gamesListForm" onsubmit="return false">
+                            <select id="gameChoices">
+                                <option value="#" selected>Join Game</option>
+                            </select>
+                        </form>
+                    </div>
+                </td>
+                <td>
+                    <div id="claimNoPlayBtn" class="actionBtn" style="width:70px">No Play</div>
+                </td>
+                <td>
+                    <div id="showHyposBtn" class="actionBtn" style="width:100px">Show Hypos</div>
+                </td>
+                <td>
+                    <div id="showRuleBtn" class="actionBtn" style="width:90px">Show Rule</div>
+                </td>
+            </tr>
+            <tr valign="top">
+                <td>
+                    <div id="startGameBtn" class="actionBtn" style="width:96px">Start Game</div>
+                    <div>
+                        <form id="newGameForm" onsubmit="return false">
+                            &nbsp;with name: <input id="newGameName" type="text" width="100px" size="30"/>
+                        </form>
+                    </div>
+                </td>
+                <td>
+                    <div id="ruleGuessBtn" class="actionBtn" style="width:98px">Guess Rule</div>
+                </td>
+                <td>
+                    <div id="showRegectedsBtn" class="actionBtn" style="width:130px">Show Rejecteds</div>
+                </td>
+                <td>
+                    <div id="showHelpBtn" class="actionBtn" style="width:90px">Show Help</div>
+                </td>
+            </tr>
+        </table>
+
+        <hr>
+
+        <div id="guessRuleModal">
+            <b><u>Guess the rule:</u></b><br/>
+            Result:<br/>
+            <div id="guessResult" style="background-color: white">(no result yet)</div>
+            Mystery Rule's Description:<br/>
+            <div id="guessedRuleDescr" style="background-color: white">(as yet unknown)</div>
+            <form onsubmit="return false;">
+                /*<br/>
+                <table>
+                    <tr>
+                        <td>
+                            param: <b>card1</b> of type Card<br/>
+                            param: <b>card2</b> of type Card<br/>
+                            returns: boolean
+                        </td>
+                        <td width=20>&nbsp;</td>
+                        <td>
+                            class <b>Card</b>:<br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<b>getOrdinal(): int</b><br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<b>getSuitID(): int</b><br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<b>getSuitName(): string</b><br/>
+                            &nbsp;&nbsp;&nbsp;&nbsp;<b>getSuitColor(): string</b><br/>
+                        </td>
+                    </tr>
+                </table>
+                */<br/>
+                <b>function rule(card1, card2) {</b><br/>
+                <textarea id="guessContent" rows="5" cols="67">
+
+                    // your code here
+
+                </textarea><br/>
+                <b>}</b>&nbsp;&nbsp;<button id="guessBtn">Guess</button>
+            </form>
+        </div>
+
+        <div id="showRuleModal">
+            Mystery Rule's Description:<br/>
+            <div id="ruleDescription" style="background-color: white"></div>
+            <form>
+                <textarea id="ruleContent" rows="5" cols="67" disabled="disabled"></textarea>
+            </form>
+        </div>
+
+        <div id="failedSequencesModal">
+            Failed Sequences:<br/><br/>
+            Rejected Play-Attempts:<br/>
+            <div id="failedSequences" style="overflow:auto; height:200px">
+
+            </div>
+        </div>
+
+        <div id="hyposModal">
+            Hypothetical Sequences<br/>
+            (valid for mystery-rule though not in displayed sequence, so need to be valid for your rule):<br/><br/>
+            <div id="hypoSequences" style="overflow:auto; height:200px">
+
+            </div>
+        </div>
+
+        <div id="helpModal">
+            <center><b>Help Page</b></center><br/><br/>
+            <div style="overflow:auto; height:300px">
+                <b>General Description</b><br/>
+                <a href="http://en.wikipedia.org/wiki/Robert_Abbott_(game_designer)" target="_blank">Robert Abbott</a> invented
+                the card-game <a href="http://en.wikipedia.org/wiki/Eleusis_(card_game)" target="_blank">Eleusis</a>
+                in the 1950's.  The game may be considered a game of
+                <a href="http://en.wikipedia.org/wiki/Inductive_reasoning" target="_blank">inductive reasoning</a> in that the object of the
+                game is to infer a rule that determines a sequence of playing-cards that develops over the course of the game as
+                players play cards from their respective hands.
+                <br/><br/>
+                <b>Typical Game-Play Scenario</b><br/>
+                <ul>
+                    <li>
+                        The game may be played by a single player against the dealer, or by as many as three players against the dealer.
+                    </li>
+                    <li>
+                        A prospective player uses either the "Create Game" option or the "Join Game" option to enter a game.
+                    </li>
+                    <li>
+                        At the beginning of a game, there is a single card in the common area and five cards dealt to the first player,
+                        toward the bottom of the middle of the view.  In the middle of the view is a chat-window which also serves as
+                        the place in which the game-app puts any system-generated messages.  If another player joins the game, his/her
+                        cards appear on the lefthand side of the view, with his/her username at the top of that area. In any case,
+                        by this time, the game-app has randomly chosen a "mystery-rule", which it is the object of the game to infer.
+                    </li>
+                    <li>
+                        Whoever created (i.e., "started") the game has the first turn, and then players take turns in the order
+                        in which they joined the game.
+                    </li>
+                    <li>
+                        Then, in turn-order, players take any of the following actions, not necessarily in this order:
+                        <ul>
+                            <li>a player clicks on one of his/her cards, to play that card</li>
+                            <ul>
+                                <li>
+                                    The game-app checks the played card against the "mystery-rule" to see if it satisfies it;
+                                    If the rule is not satisfied, then the card is rejected and the corresponding two-card
+                                    sequence is added to the "Failed Sequences" dialog's contents (see: "Show Rejecteds")
+                                    and the player's turn is over. If the rule is satisified, then that card is automatically
+                                    removed from that player's hand and added to the series of cards in the common area.
+                                </li>
+                            </ul>
+                            <li>
+                                Typically, a player needs to simply randomly play cards for a while in order to try to get a
+                                sense of the mystery-rule.  After a while, the player may have an hypothesis.  Based on that
+                                hypothesis, s/he may click on the "No Play" button, to which the game-app will respond with
+                                the result of its attempt to play any of that player's cards that might be valid.  If a valid
+                                card is found, the game-app plays it for that player; otherwise, the game-app indicates this
+                                result, adds the corresponding series of two-card invalid sequences to the "Failed Sequences"
+                                dialog's contents (see: "Show Rejecteds), and draws a new card for that player. That ends that
+                                player's turn.
+                            </li>
+                            <li>
+                                Eventually, the player will want to make a guess at the mystery-rule, by clicking on the "Guess Rule"
+                                button.  In the "Guess Rule" dialog, the user needs to make use of the information provided therein
+                                (essentially, the relevent "API Documentation" on the Card class) and type out the body of his/her
+                                Rule-Guess.
+                                <ul>
+                                    <li>
+                                        A Rule-Guess may consist of any valid JavaScript-code (for which see
+                                        <a href="https://developer.mozilla.org/en/JavaScript/Guide" target="_blank">this for syntax and standard JavaScript API</a>
+                                        and <a href="http://www.3site.eu/jstests/jhp/" target="_blank">this for a handy online JavaScript "playground"</a>).
+                                        That code may make use of any or none of the
+                                        details provided about the Card class (the card's "ordinal" value, its suit, its suit's name,
+                                        and its suit's color). The ordinal-value of the two cards might be added together, multiplied
+                                        together, subtracted one from the other (optionally with the absolute value then taken); then,
+                                        that value (informally, the "ordinal result") may be tested for various possible characteristics,
+                                        such as evenness, oddness, whether or not prime, whether or not a "round binary" number, etc.
+                                        Meanwhile, the guess may take into account either or both cards' suit: either the suit generally
+                                        or specifically the suit's name or its color, or both.
+                                    </li>
+                                    <li>
+                                        Generally, a rule (whether a rule-guess or the mystery-rule) consists of a single (though possibly
+                                        complex) logical assertion about any two-card sequence in a single shuffled normal 52-card deck of
+                                        playing-cards.
+                                        <ul>
+                                            <li>
+                                                <b>NOTE:</b> the mystery-rule may impose restrictions on card-sequence for which the player
+                                                has, in a sense, "no empirical evidence", i.e., which the currently displayed series of cards
+                                                in the common area does not manifest or demonstrate.  The player has no way to
+                                                learn of such constraints except through experimentation in the form of rule-guessing.
+                                            </li>
+                                            <ul>
+                                                <li>
+                                                    If a Rule-Guess does not permit a sequence that the mystery-rule permits, the game-app
+                                                    will indicate this fact with appropriate messaging and by adding to the "Hypothetical
+                                                    Sequences" dialog's contents (see: "Show Hypos").  This corresponds with a scientist's
+                                                    positing of a theory based upon incomplete evidence.
+                                                </li>
+                                            </ul>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li>
+                                Eventually, either a player correctly guesses the rule and thereby wins, or s/he clicks on the
+                                "Show Rule" button, which shows a dialog containing the definition of the mystery-rule, at which
+                                time the game is over and the "dealer" has won.
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+    <div id="middleRow" style="position: relative; width: 800px; height: 300px; border: 1px solid #0000FF">
+        <div id="cards-player-left" style="overflow: auto; float: left; width: 1px; height: 300px; border: 1px solid #0000FF">
+            <div id="player-left-uname" class="playerUname"></div>
+        </div>
+        <div id="common" style="overflow: auto; float: left; width: 785px; height: 300px; border: 1px solid #0000FF"></div>
+        <div id="cards-player-right" style="overflow: auto; float: left; width: 1px; height: 300px; border: 1px solid #0000FF"></div>
+        <div style="clear:both"></div>
+    </div>
+    <div id="bottomRow" style="position: relative; width: 800px; height: 300px; border: 1px solid #0000FF">
+        <div id="serverMsgs" style="overflow: auto; width:800px; height: 50px; background-color: white; text-align:left"></div>
+        <form id="chatForm" onsubmit="return false">
+            <input id="chatMsg" size="154" style="width: 790px"/>
+        </form>
+        <hr/>
+        <div id="cards" style="overflow: auto; position: relative; height: 300px; border: 1px solid #0000FF"></div>
+    </div>
+
+</div>
+</font>
+</center>
+</body>
+</html>

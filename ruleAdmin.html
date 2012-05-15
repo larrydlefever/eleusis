@@ -1,0 +1,54 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>Eleusis - Rule-Admin</title>
+
+    <script type="text/javascript" src="jquery.min.js"></script>
+    <script type="text/javascript" src="eleusis_ruleAdmin.js"></script>
+    <script type="text/javascript" src="eleusis_ruleAdmin_app.js"></script>
+
+</head>
+<body bgcolor="#cccccc">
+<font face="arial">
+<center><h3>Eleusis - Rule-Admin</h3></center>
+<div>
+    <a href="index.html">Main</a>
+</div>
+<hr/>
+<br/>
+
+<b><u>Server-Responses:</u></b><br/>
+<div id="serverMsgs"></div>
+<br/>
+<hr/>
+<br/>
+
+<div>
+    <b><u>Add Rule:</u></b><br/><br/>
+    <form id="addRuleForm" onsubmit="return false">
+
+        Rule-Name: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input id="ruleName" name="ruleName" size="30"/><br/>
+        Rule-Description:<br/>
+        <textarea id="ruleDescr" rows="5" cols="50"></textarea><br/><br/>
+
+        <b>function rule(card1, card2) {</b><br/>
+        <textarea id="ruleContent" rows="5" cols="50">
+
+            // your code here
+
+        </textarea><br/>
+        <b>}</b>&nbsp;&nbsp;<button id="addRuleBtn">Add</button>
+    </form>
+</div>
+<br/>
+<hr/>
+<br/>
+
+<b><u>Rules:</u></b><br/><br/>
+<div id="ruleList">
+
+</div>
+</font>
+</body>
+</html>
