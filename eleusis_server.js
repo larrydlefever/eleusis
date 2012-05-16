@@ -1488,8 +1488,8 @@ var server = http.createServer(function(req, res) {
         handleRequest(req, res);
     }
 
-}).listen(process.env.PORT || 80, "0.0.0.0");
-console.log("listening on port 80");
+}).listen(process.env.PORT || 8889, "0.0.0.0");
+console.log("listening on port 8889");
 
 bayeux.attach(server);
 console.log("attached server to bayeux (pub-sub framework)");
