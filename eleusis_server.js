@@ -521,14 +521,21 @@ function Game(gameID, gameName, ruleManager, theBruteForceFuncEquivChecker, firs
             return name;
         },
         getCommon: function() {
-            return common; //TODO: clone?
+            return common; //TODO: clone? encapsulation-issue!
         },
         getPlayers: function() {
-            return players; //TODO: clone?
+            return players; //TODO: clone? encapsulation-issue!
         },
         joinGame: function(user) {
             players[user.getUserName()] = user;
             turnQ.addPlayer(user);
+        },
+        removePlayer: function(user) {
+            delete players[user.getUserName()];
+            turnQ.removePlayer(user);
+            user.setHand({});
+            console.log("Game: removePlayer: removed " + user.getUserName() +
+                " from [" + name + "]; player-count: " + Object.keys(players).length);
         },
         getCurrTurnPlayer: function() {
             return turnQ.getCurrTurnPlayer();
@@ -726,7 +733,7 @@ function GameManager(ruleManager, theBruteForceFuncEquivChecker) {
             var hand = user.getHand();
             for(var i = 0; i < HAND_START_SIZE; i++) {
                 var drawnCard = game.drawCard();
-                console.log("GameManager dealHand: drawnCard: " + util.inspect(drawnCard, true, null));
+                //console.log("GameManager dealHand: drawnCard: " + util.inspect(drawnCard, true, null));
                 hand[drawnCard.getMapKey()] = drawnCard;
             }
             //console.log("GameManager hand: " + util.inspect(hand, true, null));
@@ -815,27 +822,27 @@ function GameManager(ruleManager, theBruteForceFuncEquivChecker) {
             for(var gameID in gamesByID) {
 
                 var game = gamesByID[gameID];
-                var players = game.getPlayers();
+                var players = game.getPlayers(); //TODO; encapsulation-issue!
 
                 for(var username in players){
+
                     if(username == user.getUserName()) {
 
                         var player = players[username];
-                        delete players[username];
-                        console.log("GameManager.ensureUserNotInAnyGame: removed " +
-                            username + " from " + game.getName() + "; player-count: " + Object.keys(players).length);
-                        player.setHand({});
-                        console.log("GameManager.ensureUserNotInAnyGame: emptied hand of " + username);
+                        game.removePlayer(player);
+
                         removedFromGameID = gameID;
+                        var gameDeleted = null;
 
                         if(Object.keys(players).length == 0) {
                             delete gamesByID[gameID];
                             delete gamesByName[game.getName()];
                             console.log("GameManager: ensureUserNotInAnyGame: game [" +
                                 game.getName() + "] deleted; game-count: " + Object.keys(gamesByID).length);
+                            gameDeleted = game.getName();
                         }
 
-                        return {
+                        var result = {
                             status: 'OK',
                             evt: {
                                 handler: 'playerLeftGame',
@@ -844,6 +851,21 @@ function GameManager(ruleManager, theBruteForceFuncEquivChecker) {
                                 msg: username + ' left the game'
                             }
                         };
+
+                        if(gameDeleted) {
+                            result.moreEvts = {
+                                afterEvts: [
+                                    {
+                                        handler: 'gameDeleted',
+                                        callerUname: username,
+                                        channelName: CHANNEL_NAME_ADMIN,
+                                        msg: "[" + gameDeleted + "] deleted because empty of players"
+                                    }
+                                ]
+                            };
+                        }
+
+                        return result;
                     }
                 }
             }
@@ -994,6 +1016,7 @@ function CommandManager() {
 
         var removalResult = gameMgr.ensureUserNotInAnyGame(user);
         var removedEvt = removalResult.evt ? removalResult.evt : null;
+        var moreEvts = removalResult.moreEvts ? removalResult.moreEvts : null;
 
         var game = gameMgr.joinGame(gameID, user);
         gameMgr.dealHand(game, user);
@@ -1012,12 +1035,13 @@ function CommandManager() {
             }
         };
 
+        if(moreEvts) {
+            result.moreEvts = moreEvts;
+        }
+
         if(removedEvt) {
-            result.moreEvts = {
-                beforeEvts: [
-                    removedEvt
-                ]
-            };
+            result.moreEvts = result.moreEvts ? result.moreEvts : {};
+            result.moreEvts.beforeEvts = [removedEvt];
         }
 
         return result;
@@ -1049,6 +1073,7 @@ function CommandManager() {
 
             var removalResult = gameMgr.ensureUserNotInAnyGame(user);
             var removedEvt = removalResult.evt ? removalResult.evt : null;
+            var moreEvts = removalResult.moreEvts ? removalResult.moreEvts : null;
 
             var game = gameMgr.createGame(gameName, user);
             gameMgr.dealHand(game, user);
@@ -1069,17 +1094,13 @@ function CommandManager() {
                 }
             };
 
+            result.moreEvts = moreEvts ? moreEvts : {};
+
             if(removedEvt) {
-                result.moreEvts = {
-                    beforeEvts: [
-                        removedEvt
-                    ]
-                };
+                result.moreEvts.beforeEvts = [removedEvt];
             }
 
-            var moreEvts = result.moreEvts ? result.moreEvts : (result.moreEvts = {});
-
-            moreEvts.afterEvts = [
+            result.moreEvts.afterEvts = [
                 {
                     handler: 'playerCreatedGame',
                     channelName: CHANNEL_NAME_ADMIN, // i.e., send to ALL players, esp. for update of games-list

@@ -74,9 +74,16 @@ function EleusisClient(theHost) {
         playerCreatedGame: playerCreatedGame,
         playerClaimedNoPlay: playerClaimedNoPlay,
         playerGuessCheckAsync: playerGuessCheckAsync,
-        playerReleasedTurn: playerReleasedTurn
+        playerReleasedTurn: playerReleasedTurn,
+        gameDeleted: gameDeleted
     };
 
+
+    function gameDeleted(msg) {
+        setMsg("#serverMsgs", msg.msg);
+        //TODO: calling like this (with invoke), because no access here to the "public" method fillGamesList()
+        invoke('getGames', null); // to refresh the list
+    }
 
     function playerReleasedTurn(msg) {
         if(msg.callerUname != myUsername) {
@@ -177,7 +184,7 @@ function EleusisClient(theHost) {
     function playerJoinedGame(msg) {
 
         log("playerJoinedGame: player " + msg.player.username + "; gameID: " + msg.gameID);
-        log("playerJoinedGame: hand.length: " + msg.player.hand.length);
+        log("playerJoinedGame: hand.length: " + Object.keys(msg.player.hand).length);
 
         var userClientState = new UserClientState(msg.player.username, msg.player.hand);
         currGame.addPlayer(userClientState);
