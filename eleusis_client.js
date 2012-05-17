@@ -557,6 +557,8 @@ function EleusisClient(theHost) {
         }
 
         subscribeToGameChannel(gameClientState);
+
+        setMsg("#currGameName", gameClientState.getName(), true);
     }
 
     function setFirstCommonCard(card) {
@@ -631,6 +633,8 @@ function EleusisClient(theHost) {
         setFirstCommonCard(firstCommonCard);
 
         subscribeToGameChannel(gameClientState);
+
+        setMsg("#currGameName", gameClientState.getName(), true);
     }
 
     function getBgPosForCard(card) {

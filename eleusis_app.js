@@ -26,6 +26,8 @@ $(document).ready(function() {
 
     $('#newGameName').val(''); // partly to address FireFox bug putting (or leaving) some other value in here
 
+    $('#currGameName').empty();
+
     $('#guessResult').empty();
     $('#guessedRuleDescr').empty();
     $('#guessContent').val('');
