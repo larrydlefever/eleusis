@@ -849,20 +849,28 @@ function GameManager(ruleManager, theBruteForceFuncEquivChecker) {
                                 callerUname: username,
                                 gameID: gameID,
                                 msg: username + ' left the game'
+                            },
+                            moreEvts: {
+                                afterEvts: [
+                                    {
+                                        handler: 'playerReleasedTurn',
+                                        callerUname: username,
+                                        gameID: gameID,
+                                        msg: username + " released his/her turn"
+                                    }
+                                ]
                             }
                         };
 
                         if(gameDeleted) {
-                            result.moreEvts = {
-                                afterEvts: [
-                                    {
-                                        handler: 'gameDeleted',
-                                        callerUname: username,
-                                        channelName: CHANNEL_NAME_ADMIN,
-                                        msg: "[" + gameDeleted + "] deleted because empty of players"
-                                    }
-                                ]
-                            };
+                            result.moreEvts.afterEvts.push(
+                                {
+                                    handler: 'gameDeleted',
+                                    callerUname: username,
+                                    channelName: CHANNEL_NAME_ADMIN,
+                                    msg: "[" + gameDeleted + "] deleted because empty of players"
+                                }
+                            );
                         }
 
                         return result;
@@ -1041,7 +1049,8 @@ function CommandManager() {
 
         if(removedEvt) {
             result.moreEvts = result.moreEvts ? result.moreEvts : {};
-            result.moreEvts.beforeEvts = [removedEvt];
+            result.moreEvts.beforeEvts = result.moreEvts.beforeEvts ? result.moreEvts.beforeEvts : [];
+            result.moreEvts.beforeEvts.push(removedEvt);
         }
 
         return result;
@@ -1100,7 +1109,9 @@ function CommandManager() {
                 result.moreEvts.beforeEvts = [removedEvt];
             }
 
-            result.moreEvts.afterEvts = [
+            result.moreEvts.afterEvts = result.moreEvts.afterEvts ? result.moreEvts.afterEvts : [];
+
+            result.moreEvts.afterEvts.push(
                 {
                     handler: 'playerCreatedGame',
                     channelName: CHANNEL_NAME_ADMIN, // i.e., send to ALL players, esp. for update of games-list
@@ -1111,7 +1122,7 @@ function CommandManager() {
                     callerUname: user.getUserName(),
                     msg: user.getUserName() + " created game " + game.getName()
                 }
-            ];
+            );
         }
 
         console.log("CommandManager result: " + util.inspect(result, true, null));

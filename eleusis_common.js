@@ -216,8 +216,9 @@ function GameClientState(gameID, theName, theCommon, thePlayers) {
             players[user.getUserName()] = user;
             turnQ.addPlayer(user);
         },
-        removePlayer: function() {
-            //TODO: implement!
+        removePlayer: function(user) {
+            delete players[user.getUserName()];
+            turnQ.removePlayer(user);
         },
         getCurrTurnPlayer: function() {
             return turnQ.getCurrTurnPlayer();

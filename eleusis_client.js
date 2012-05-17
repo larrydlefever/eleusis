@@ -165,13 +165,16 @@ function EleusisClient(theHost) {
             clearGameUI();
         } else {
             setMsg('#serverMsgs', msg.msg);
+
             var players = currGame.getPlayers();
             var playerToRemove = players[msg.callerUname];
-            delete players[msg.callerUname];
+            currGame.removePlayer(playerToRemove);
             log("playerLeftGame: removed " + msg.callerUname + " from game " + currGame.getName());
+
             var handLoc = playerToRemove.getHandLoc();
             $('div#cards-' + handLoc + ' > div[class |= "card"]').remove();
             log("playerLeftGame: removed the cards of " + msg.callerUname + " from area: cards-" + handLoc);
+
             closeOtherPlayer(handLoc);
             log("playerLeftGame: closed " + msg.callerUname + "'s area");
         }
