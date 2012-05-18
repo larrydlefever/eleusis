@@ -96,21 +96,29 @@ function EleusisClient(theHost) {
     }
 
     function playerGuessCheckAsync(msg) {
+
         log("playerGuessCheckAsync: ...");
         log(msg);
+
         if(msg.callerUname == myUsername) {
             setMsg('#guessResult', msg.statusMsg, true);
         }
+
         if(msg.status == 'FAILED') {
+
+            var seq = [
+                new Card(msg.cardSeq[0].ordinal, msg.cardSeq[0].suitID),
+                new Card(msg.cardSeq[1].ordinal, msg.cardSeq[1].suitID)
+            ];
+
             if(msg.mysteryRuleAccepts === true) {
-                var seq = [
-                    new Card(msg.cardSeq[0].ordinal, msg.cardSeq[0].suitID),
-                    new Card(msg.cardSeq[1].ordinal, msg.cardSeq[1].suitID)
-                ];
-                updateSequencesUI('#hypoSequences', seq);
+                updateSequencesUI('#hyposAccepted', seq);
+            } else {
+                updateSequencesUI('#hypoRejected', seq);
             }
-            //TODO: if not mysteryRuleAccepts, then updateSequencesUI(#failedSequences)
+
             setMsg('#serverMsgs', "for " + msg.callerUname + "'s rule-guess: eleusis-response: " + msg.statusMsg);
+
             if(msg.callerUname == myUsername) {
                 doNextTurnWithRemote();
             }
@@ -157,7 +165,9 @@ function EleusisClient(theHost) {
         $('#ruleContent').val('');
 
         $('#failedSequences').empty();
-        $('#hypoSequences').empty();
+
+        $('#hyposAccepted').empty();
+        $('#hyposRejected').empty();
     }
 
     function playerLeftGame(msg) {
@@ -675,9 +685,13 @@ function EleusisClient(theHost) {
     }
 
     function setMsg(id, msg, empty) {
-        if(empty) $(id).empty();
+        var hr = "<hr/>";
+        if(empty) {
+            $(id).empty();
+            hr = "";
+        }
         var newMsgDivID = 'msg_' + (new Date().getTime());
-        var newMsgDiv = $('<div id="' + newMsgDivID + '">' + msg + '<hr/></div>', {});
+        var newMsgDiv = $('<div id="' + newMsgDivID + '">' + msg +  hr + '</div>', {});
         newMsgDiv.appendTo(id);
         $(id).animate({ scrollTop: $(id).prop("scrollHeight") }, 1000);
         flashAMsg(newMsgDivID);

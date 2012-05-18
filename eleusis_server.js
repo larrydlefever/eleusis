@@ -380,11 +380,21 @@ function BruteForceFuncEquivChecker(theRuleMgr) {
                     var failedCard2 = compResult.mismatch.cardSeq[1];
 
                     result['status'] = "FAILED";
-                    result['statusMsg'] = defaultStatuMsg + ", " +
-                        "but it fails for the following tested hypothetical card-sequence: [" +
-                        failedCard1.getMapKey() + ", " +
-                        failedCard2.getMapKey() +
-                        "]";
+
+                    if(compResult.mismatch.mysteryRuleAccepts) {
+                        result['statusMsg'] = defaultStatuMsg + ", " +
+                            "but it doesn't accept the following hypothetical sequence accepted by the mystery-rule: [" +
+                            failedCard1.getMapKey() + ", " +
+                            failedCard2.getMapKey() +
+                            "]";
+                    } else {
+                        result['statusMsg'] = defaultStatuMsg + ", " +
+                            "but it accepts the following hypothetical sequence rejected by the mystery-rule: [" +
+                            failedCard1.getMapKey() + ", " +
+                            failedCard2.getMapKey() +
+                            "]";
+                    }
+
                     result['cardSeq'] = [
                         failedCard1.toJSON(),
                         failedCard2.toJSON()

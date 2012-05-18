@@ -38,7 +38,9 @@ $(document).ready(function() {
     $('#ruleContent').val('');
 
     $('#failedSequences').empty();
-    $('#hypoSequences').empty();
+
+    $('#hyposAccepted').empty();
+    $('#hyposRejected').empty();
 
     $('#chatMsg').val('Enter Chat Message'); // partly to address FireFox bug putting some other value in here
     $('#chatMsg').focus(function(){
