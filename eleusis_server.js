@@ -1234,6 +1234,7 @@ function CommandManager() {
                 handler: 'playerGuessedRule',
                 status: guessResult.status,
                 statusMsg: guessResult.statusMsg,
+                guessContent: guessContent,
                 callerUname: callerUname,
                 gameID: gameID,
                 msg: actionMsg

@@ -32,6 +32,8 @@ $(document).ready(function() {
     $('#guessedRuleDescr').empty();
     $('#guessContent').val('');
 
+    $('#guesses').empty();
+
     $('#ruleDescription').empty();
     $('#ruleContent').val('');
 
@@ -69,6 +71,15 @@ $(document).ready(function() {
     $('#showRuleModal').dialog({
         autoOpen: false,
         width: 600,
+        buttons: {
+            "Close": function() {
+                $(this).dialog("close");
+            }
+        }
+    });
+    $('#showGuessesModal').dialog({
+        autoOpen: false,
+        width: 690,
         buttons: {
             "Close": function() {
                 $(this).dialog("close");
@@ -150,6 +161,12 @@ $(document).ready(function() {
         if(eleusis.assertShowModal('#showRuleModal')) {
             $('#showRuleModal').dialog('open');
             eleusis.getChosenRule();
+        }
+        return false;
+    });
+    $('#showGuessesBtn').click(function() {
+        if(eleusis.assertShowModal('#showGuessesModal')) {
+            $('#showGuessesModal').dialog('open');
         }
         return false;
     });

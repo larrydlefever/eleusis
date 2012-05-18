@@ -29,7 +29,7 @@
 
         <table width="100%" border=0>
             <tr valign="top">
-                <td width="30%">
+                <td width="180px">
                     <div>
                         <form id="gamesListForm" onsubmit="return false">
                             <select id="gameChoices">
@@ -38,14 +38,14 @@
                         </form>
                     </div>
                 </td>
-                <td>
+                <td width="180px">
                     <div id="claimNoPlayBtn" class="actionBtn" style="width:70px">No Play</div>
                 </td>
-                <td>
+                <td width="180px">
                     <div id="showHyposBtn" class="actionBtn" style="width:100px">Show Hypos</div>
                 </td>
                 <td>
-                    <div id="showRuleBtn" class="actionBtn" style="width:90px">Show Rule</div>
+                    <div id="showGuessesBtn" class="actionBtn" style="width:150px">Show Guesses</div>
                 </td>
             </tr>
             <tr valign="top">
@@ -68,7 +68,8 @@
                     <div id="showRegectedsBtn" class="actionBtn" style="width:130px">Show Rejecteds</div>
                 </td>
                 <td>
-                    <div id="showHelpBtn" class="actionBtn" style="width:90px">Show Help</div>
+                    <div id="showRuleBtn" class="actionBtn" style="width:150px">Show Mystery-Rule</div>
+                    <div id="showHelpBtn" class="actionBtn" style="width:90px; margin-top: 5px">Show Help</div>
                 </td>
             </tr>
         </table>
@@ -117,6 +118,11 @@
             <form>
                 <textarea id="ruleContent" rows="5" cols="67" disabled="disabled"></textarea>
             </form>
+        </div>
+
+        <div id="showGuessesModal">
+            History of Rule-Guesses:<br/>
+            <div id="guesses" style="overflow:auto; height:200px"></div>
         </div>
 
         <div id="failedSequencesModal">

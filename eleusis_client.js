@@ -150,6 +150,8 @@ function EleusisClient(theHost) {
         $('#guessedRuleDescr').empty();
         $('#guessContent').val('');
 
+        $('#guesses').empty();
+
         // in "Show Rule"
         $('#ruleDescription').empty();
         $('#ruleContent').val('');
@@ -242,8 +244,9 @@ function EleusisClient(theHost) {
 
     function playerGuessedRule(msg) {
         setMsg('#serverMsgs', msg.msg + "; eleusis-response: " + msg.statusMsg);
-        // we don't do this stuff here anymore, because we don't know what to do yet,
-        // not until the "...async" version of this callback is called (i.e., delayed or deferred callback)
+        var ruleArea = $('<textarea rows="5" cols="75"></textarea>');
+        ruleArea.text(msg.guessContent);
+        ruleArea.prependTo('#guesses');
     }
 
     function playerSeesRule(msg) {
@@ -866,6 +869,12 @@ function EleusisClient(theHost) {
                 if(!currGame.isGameOver()) {
                     if(!assertIsMyTurn()) return false;
                     //NOTE: if game over, we let anybody view the rule, regardless of turn
+                }
+                return true;
+            } else if(modalName == '#showGuessesModal') {
+                if(!currGame) {
+                    setMsg("#serverMsgs", "ERROR: There are no relevant guesses, since you're not in a game yet.");
+                    return false;
                 }
                 return true;
             } else {
