@@ -114,7 +114,7 @@ function EleusisClient(theHost) {
             if(msg.mysteryRuleAccepts === true) {
                 updateSequencesUI('#hyposAccepted', seq);
             } else {
-                updateSequencesUI('#hypoRejected', seq);
+                updateSequencesUI('#hyposRejected', seq);
             }
 
             setMsg('#serverMsgs', "for " + msg.callerUname + "'s rule-guess: eleusis-response: " + msg.statusMsg);
