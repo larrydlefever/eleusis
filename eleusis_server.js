@@ -22,6 +22,11 @@ var path = require('path');
 // as part of custom JSON-based object-serialization scheme (accounting for private methods)
 eval(fs.readFileSync('eleusis_common.js')+'');
 
+// simple logging-tweak to add timestamp to all console-logging
+console.log = function(msg) {
+    util.log(msg);
+};
+
 var bayeux = new faye.NodeAdapter({mount: '/eleusisGames', timeout: 45});
 
 var usersPath = null;
