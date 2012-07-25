@@ -6,7 +6,7 @@
  * To change this template use File | Settings | File Templates.
  */
 
-function EleusisClient(theHost) {
+function EleusisClient(theHost, theRuleGuessParser) {
 
     //NOTE: assuming using cards.png
     var SPRITE_OFFSET_X_INCREMENT = '73';
@@ -18,6 +18,7 @@ function EleusisClient(theHost) {
     var currGameChannel = null; //TODO: put this into currGame?
     var myUsername = null;
 
+    var ruleGuessParser = theRuleGuessParser;
 
     function log(msg) {
         if(window.console) {
@@ -940,6 +941,17 @@ function EleusisClient(theHost) {
         },
         testMarshal: function() {
             invoke('marshal', null);
+        },
+        englishToJS: function(eng) {
+
+            var result = null;
+            try {
+                result = ruleGuessParser.parse(eng);
+            } catch(err) {
+                result = err.toString();
+            }
+
+            $('#guessContent').val(result);
         }
     };
 

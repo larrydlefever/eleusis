@@ -14,7 +14,91 @@
 
 $(document).ready(function() {
 
-    var eleusis = new EleusisClient($(location).attr('host'));
+
+
+
+    function RuleGuessParserHelper() {
+
+        this.binaryBooleans = {
+            and: " && ",
+            "while": " && ",
+            but: " && ",
+            or: " || "
+        };
+
+        this.relationals = {
+            equal: "= ",
+            same: "= ",
+            greater: "> ",
+            less: "< ",
+            different: "!= "
+        };
+
+        this.arithmetics = {
+            sum: " + ",
+            product: " * "
+        };
+    }
+
+    RuleGuessParserHelper.prototype.handleNumericCardPhrase = function(yy, card, cardTraitNumeric) {
+        //console.log("yy.foo: " + yy.foo);
+        var card = card.substring(0, card.indexOf("'"));
+        var trait = '.getOrdinal()';
+        yy.cardTrait = trait;
+        //console.log("cardTrait: " + yy.cardTrait);
+        return card + trait;
+    };
+
+
+    RuleGuessParserHelper.prototype.handleStringCardPhrase = function(yy, card, cardTraitString) {
+        var card = card.substring(0, card.indexOf("'"));
+        var trait = cardTraitString;
+        //console.log("cardTrait: " + yy.cardTrait);
+        trait = '.get' + trait.charAt(0).toUpperCase() + trait.substring(1) + '()';
+        yy.cardTrait = trait;
+        return card + trait;
+    };
+
+    RuleGuessParserHelper.prototype.getBinaryBooleanSymbol = function(r) {
+        return this.binaryBooleans[r];
+    };
+
+    RuleGuessParserHelper.prototype.getRelationalSymbol = function(verbPhrase, r) {
+        if(r == 'different') {
+            return this.relationals['different'];
+        }
+        if(r == 'greater' || r == 'less') {
+            return this.relationals[r];
+        }
+        if(verbPhrase == '=' || verbPhrase == '!') {
+            return verbPhrase + this.relationals['equal'];
+        }
+
+        //TODO: handle "not greater than", "not less than" ?
+
+        return this.relationals[r];
+    };
+
+    RuleGuessParserHelper.prototype.getArithmeticSymbol = function(a) {
+        return this.arithmetics[a];
+    };
+
+    RuleGuessParserHelper.prototype.getMethodForCardTraitStringPlural = function(p) {
+        if(p == "suitColors") {
+            return ".getSuitColor()";
+        } else if(p == "suitNames") {
+            return ".getSuitName()";
+        } else {
+            return "unknownMethod()";
+        }
+    };
+
+
+/////////////////////////////////////////////////////////
+
+    ruleGuessParser.yy.parserHelper = new RuleGuessParserHelper();
+
+    var eleusis = new EleusisClient($(location).attr('host'), ruleGuessParser);
 
     $.ajaxSetup({
         cache: false
@@ -145,6 +229,7 @@ $(document).ready(function() {
         var dataToPost = {gameID: eleusis.getGameID()};
         eleusis.claimNoPlay(dataToPost);
     });
+
     $('#guessBtn').click(function() {
         var guessContent = $('#guessContent').val();
         guessContent = {
@@ -153,10 +238,25 @@ $(document).ready(function() {
         };
         eleusis.guessRule(guessContent);
     });
+
+
+    $('#viewJSBtn').click(function() {
+        $('#guessContentEngDiv').css('display', 'none');
+        $('#guessContentDiv').css('display', 'block');
+
+        eleusis.englishToJS($('#guessContentEng').val());
+    });
+
+    $('#viewEngBtn').click(function() {
+        $('#guessContentEngDiv').css('display', 'block');
+        $('#guessContentDiv').css('display', 'none');
+    });
+
+
     $('#ruleGuessBtn').click(function() {
-        if(eleusis.assertShowModal('#guessRuleModal')) {
+//        if(eleusis.assertShowModal('#guessRuleModal')) {
             $('#guessRuleModal').dialog('open');
-        }
+//        }
         return false;
     });
     $('#showRuleBtn').click(function() {

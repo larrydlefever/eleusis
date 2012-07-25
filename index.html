@@ -11,6 +11,7 @@
 
     <script type="text/javascript" src="node_modules/faye/faye-browser-min.js"></script>
     <script type="text/javascript" src="eleusis_common.js"></script>
+    <script type="text/javascript" src="ruleGuessParser.js"></script>
     <script type="text/javascript" src="eleusis_client.js"></script>
     <script type="text/javascript" src="eleusis_app.js"></script>
 </head>
@@ -98,13 +99,26 @@
                     </tr>
                 </table>
                 */<br/>
+
+                <div id="guessContentDiv" style="display: none;">
+                    <button id="viewEngBtn">View English</button><br/>
                 <b>function rule(card1, card2) {</b><br/>
                 <textarea id="guessContent" rows="5" cols="67">
 
                     // your code here
 
                 </textarea><br/>
-                <b>}</b>&nbsp;&nbsp;<button id="guessBtn">Guess</button>
+                <b>}</b>&nbsp;&nbsp;<button id="guessBtn">Guess</button><br/>
+                </div>
+
+                <div id="guessContentEngDiv" style="display: block;">
+                    <button id="viewJSBtn">View Code</button>
+                <textarea id="guessContentEng" rows="5" cols="67">
+
+                    foo
+
+                </textarea><br/>
+                </div>
             </form>
         </div>
 
