@@ -360,11 +360,13 @@ var YYSTATE=YY_START
 switch($avoiding_name_collisions) {
 case 0:
                           this.begin('arithmetic');
+                          yy.parserHelper.onArithmetic("sum");
                           return 19;
                       
 break;
 case 1:
                           this.begin('arithmetic');
+                          yy.parserHelper.onArithmetic("product");
                           return 19;
                       
 break;
@@ -380,9 +382,15 @@ case 6:/* skip articles */
 break;
 case 7:return 15;
 break;
-case 8:return 11;
+case 8:
+                          yy.parserHelper.onCard("card1's");
+                          return 11;
+                      
 break;
-case 9:return 11;
+case 9:
+                          yy.parserHelper.onCard("card2's");
+                          return 11;
+                      
 break;
 case 10:
                           this.begin('incremental');

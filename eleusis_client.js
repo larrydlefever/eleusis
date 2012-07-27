@@ -155,8 +155,8 @@ function EleusisClient(theHost, theRuleGuessParser) {
 
         $('#cards').empty();
 
-        $('#guessResult').empty();
-        $('#guessedRuleDescr').empty();
+        $('#guessResult').val('(no result yet)');
+        $('#guessedRuleDescr').val('(still unknown)');
         $('#guessContent').val('');
 
         $('#guesses').empty();
@@ -949,6 +949,17 @@ function EleusisClient(theHost, theRuleGuessParser) {
                 result = ruleGuessParser.parse(eng);
             } catch(err) {
                 result = err.toString();
+                if(result.indexOf("Unrecognized text") != -1) {
+                    if(result.indexOf("difference") != -1) {
+                        result = "ERROR: 'difference' not recognized:\n";
+                        result += "HINT: for 'difference between', try instead a relational approach: 'foo is greater than bar by ...'";
+                    } else {
+                        result += "\nHINT: the word pointed to, above, can't be used in rule-guesses.";
+                    }
+                } else if(result.indexOf('Expecting') != -1) {
+                    result = result.substring(0, result.indexOf('Expecting'));
+                    result += "HINT: the word pointed to, above, is understood, but it's not allowed in that position.  In some cases, you can just leave it out.";
+                }
             }
 
             $('#guessContent').val(result);

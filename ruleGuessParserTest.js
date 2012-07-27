@@ -77,6 +77,15 @@ RuleGuessParserHelper.prototype.getMethodForCardTraitStringPlural = function(p) 
     }
 };
 
+RuleGuessParserHelper.prototype.onArithmetic = function(token) {
+    console.log("got token: " + token);
+};
+
+RuleGuessParserHelper.prototype.onCard = function(token) {
+    console.log("onCard: token: " + token);
+    alert("card-traits: \n\tnumber\n\tsuit-color\n\tsuit-name");
+};
+
 var transPairs = [
     {
         eng: "the product of card1's number and card2's number is prime and their suitColors are the same",

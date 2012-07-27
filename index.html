@@ -5,8 +5,14 @@
     <title>Eleusis</title>
     <link rel="stylesheet" type="text/css" href="eleusis.css" />
     <link type="text/css" href="jquery-ui-1.8.19.custom.css" rel="stylesheet" />
+    <link type="text/css" href="jquery.contextMenu.css" rel="stylesheet" />
 
-    <script type="text/javascript" src="jquery.min.js"></script>
+    <!-- <script type="text/javascript" src="jquery.min.js"></script> -->
+    <script type="text/javascript" src="jquery-1.7.1.min.js"></script>
+
+    <!-- see: http://medialize.github.com/jQuery-contextMenu/demo/trigger-custom.html -->
+    <script type="text/javascript" src="jquery.contextMenu.js"></script>
+
     <script type="text/javascript" src="jquery-ui-1.8.19.custom.min.js"></script>
 
     <script type="text/javascript" src="node_modules/faye/faye-browser-min.js"></script>
@@ -17,6 +23,11 @@
 </head>
 <body style="position: relative;" bgcolor="#00AAFF">
 <font face="arial">
+
+<div id="stringDimsHolder" style="display: none">
+    <div id="stringWidthScratchPad" style="display: none"></div>
+</div>
+
 <a href="https://github.com/larrydlefever/eleusis" target="_blank"><b>Source on GitHub</b></a>
 <center>
     <font size="+1"><b>Eleusis</b> <br/> Robert Abbott's Game of Inductive Reasoning</font><br/>
@@ -103,7 +114,7 @@
                 <div id="guessContentDiv" style="display: none;">
                     <button id="viewEngBtn">View English</button><br/>
                 <b>function rule(card1, card2) {</b><br/>
-                <textarea id="guessContent" rows="5" cols="67">
+                <textarea id="guessContent" disabled="disabled" rows="5" cols="67">
 
                     // your code here
 

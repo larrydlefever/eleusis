@@ -14,8 +14,69 @@
 
 $(document).ready(function() {
 
+    var sw = $('#stringWidthScratchPad').css('width');
+    var sh = $('#stringWidthScratchPad').css('height');
+    console.log("string-dims: w:" + sw + "; h: " + sh);
 
+    function getEnglishDims() {
+        var sw = $('#stringWidthScratchPad').css('width');
+        sw = sw.substring(0, sw.length - 2);
+        var sh = $('#stringWidthScratchPad').css('height');
+        sh = sh.substring(0, sh.length - 2);
+        console.log("string-dims: w: " + sw + "; h: " + sh);
+        return {
+            sw: sw,
+            sh: sh
+        };
+    }
 
+    $(function(){
+        // make button open the menu
+        //$('#activate-menu').on('click', function(e) {
+            //e.preventDefault();
+            //$('#guessContentEng').contextMenu();
+            // or $('.context-menu-one').trigger("contextmenu");
+            // or $('.context-menu-one').contextMenu({x: 100, y: 100});
+        //})
+
+        $.contextMenu({
+            selector: '#guessContentEng',
+            callback: function(key, options) {
+                var m = "clicked: " + key;
+                if(console && console.log) console.log(m);
+                $('#guessContentEng').val($.trim($('#guessContentEng').val()) + " " + key);
+            },
+            items: {
+                "number": {name: "number"},
+                "suit": {name: "suit"},
+                "suit-color": {name: "suit-color"},
+                "suit-name": {name: "suit-name"}
+            },
+            determinePosition: function($menu, x, y) {
+                /*
+                var sw = $('#stringWidthScratchPad').css('width');
+                sw = sw.substring(0, sw.length - 2);
+                var sh = $('#stringWidthScratchPad').css('height');
+                sh = sh.substring(0, sh.length - 2);
+                console.log("string-dims: w:" + sw + "; h: " + sh);
+                */
+
+                var engDims = getEnglishDims();
+
+                $menu.css('display', 'block').position({
+                        my: "left top",
+                        at: "left top",
+                        of: this,
+                        offset: (engDims.sw + " " + engDims.sh)
+                    }
+                ).css('display', 'none');
+            }
+        });
+    });
+
+///////////////////////////////////////////////////////
+
+    var english = "";
 
     function RuleGuessParserHelper() {
 
@@ -93,6 +154,33 @@ $(document).ready(function() {
         }
     };
 
+    RuleGuessParserHelper.prototype.onArithmetic = function(token) {
+        console.log("onArithmetic: token: " + token);
+    };
+
+    RuleGuessParserHelper.prototype.onCard = function(token) {
+
+        console.log("onCard: token: " + token +
+            "; english: '" + english + "'; eng.length: " + english.length + "; token.length: " + token.length);
+
+        // only if token is at very end of english do we want to provide content-assist;
+        // subtracting one from token.length because it lacks the space-char that triggers this
+        if(english && english.indexOf(token) == (english.length - token.length - 1)) {
+
+            // re-create string-dims 'buffer' (for, in effect, font-metrics), but
+            // dynamically updated; -- NO WORKING!  coming up with zeros ?
+            // TODO: maybe need to set display to 'block', and ensure not seen by user ?
+            // TODO:   and/or try document.write() into a hidden iframe?
+            $('<div/>', {
+                id: 'stringWidthScratchPad',
+                style: "display: block; width: 1px; height: 1px"
+            }).appendTo($('#stringDimsHolder'));
+
+            $('#stringWidthScratchPad').val(english); // for pixel-offset in def of context-menu
+            $('#guessContentEng').contextMenu();
+        }
+
+    };
 
 /////////////////////////////////////////////////////////
 
@@ -112,8 +200,8 @@ $(document).ready(function() {
 
     $('#currGameName').empty();
 
-    $('#guessResult').empty();
-    $('#guessedRuleDescr').empty();
+    $('#guessResult').val('(no result yet)');
+    $('#guessedRuleDescr').val('(still unknown)');
     $('#guessContent').val('');
 
     $('#guesses').empty();
@@ -144,6 +232,45 @@ $(document).ready(function() {
             $(this).val('');
         }
     });
+
+    function log(m) {
+        if(console && console.log) {
+            console.log(m);
+        }
+    }
+
+    $('#guessContentEng').keydown(function(e) {
+        if(e.keyCode) {
+            log("keyCode: " + e.keyCode);
+            if(e.keyCode < 48) {
+                log("control-char: " + e.keyCode);
+                if(e.keyCode == 32) {
+                    log("got space-char; new word added");
+                    english += " ";
+                    $('#guessContentEng').val($.trim($('#guessContentEng').val()) + " ");
+                    var input = $('#guessContentEng').val();
+                    eleusis.englishToJS($.trim(input));
+
+                } else if(e.keyCode == 8) { // backspace
+                    if(english != "") {
+                        english = english.substring(0, english.length-1);
+                    }
+                }
+            }
+        }
+    });
+
+    $('#guessContentEng').keypress(function(e) {
+        var char;
+        if (event.which == null)
+            char = String.fromCharCode(event.keyCode);    // old IE
+        else if (event.which != 0 && event.charCode != 0) // All others
+            char = String.fromCharCode(event.which);
+        log("keypress: char: " + char);
+        english += char;
+        log("english: " + english);
+    });
+
 
     $('#guessRuleModal').dialog({
         autoOpen: false,
@@ -243,8 +370,8 @@ $(document).ready(function() {
     $('#viewJSBtn').click(function() {
         $('#guessContentEngDiv').css('display', 'none');
         $('#guessContentDiv').css('display', 'block');
-
-        eleusis.englishToJS($('#guessContentEng').val());
+        var input = $('#guessContentEng').val();
+        eleusis.englishToJS($.trim(input));
     });
 
     $('#viewEngBtn').click(function() {
