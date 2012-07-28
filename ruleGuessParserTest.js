@@ -83,7 +83,7 @@ RuleGuessParserHelper.prototype.onArithmetic = function(token) {
 
 RuleGuessParserHelper.prototype.onCard = function(token) {
     console.log("onCard: token: " + token);
-    alert("card-traits: \n\tnumber\n\tsuit-color\n\tsuit-name");
+    //alert("card-traits: \n\tnumber\n\tsuit-color\n\tsuit-name");
 };
 
 var transPairs = [

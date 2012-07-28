@@ -24,7 +24,7 @@
 <body style="position: relative;" bgcolor="#00AAFF">
 <font face="arial">
 
-<div id="stringDimsHolder" style="display: none">
+<div id="stringDimsHolder" style="display: block">
     <div id="stringWidthScratchPad" style="display: none"></div>
 </div>
 
@@ -112,7 +112,7 @@
                 */<br/>
 
                 <div id="guessContentDiv" style="display: none;">
-                    <button id="viewEngBtn">View English</button><br/>
+                    <button id="viewEngBtn">View English</button><button id="refreshJSBtn">Refresh</button><br/>
                 <b>function rule(card1, card2) {</b><br/>
                 <textarea id="guessContent" disabled="disabled" rows="5" cols="67">
 
@@ -124,11 +124,7 @@
 
                 <div id="guessContentEngDiv" style="display: block;">
                     <button id="viewJSBtn">View Code</button>
-                <textarea id="guessContentEng" rows="5" cols="67">
-
-                    foo
-
-                </textarea><br/>
+                <textarea id="guessContentEng" rows="5" cols="67"></textarea><br/>
                 </div>
             </form>
         </div>
