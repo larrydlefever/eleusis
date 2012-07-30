@@ -11,12 +11,12 @@
 %%
 "sum"                 {
                           this.begin('arithmetic');
-                          yy.parserHelper.onArithmetic("sum");
+                          //yy.parserHelper.onArithmetic("sum");
                           return 'ARITHMETIC';
                       }
 "product"             {
                           this.begin('arithmetic');
-                          yy.parserHelper.onArithmetic("product");
+                          //yy.parserHelper.onArithmetic("product");
                           return 'ARITHMETIC';
                       }
 
@@ -27,11 +27,11 @@
 "an"                  /* skip articles */
 "their"               return 'THEIR';
 "card1's"             {
-                          yy.parserHelper.onCard("card1's");
+                          //yy.parserHelper.onCard("card1's");
                           return 'CARD';
                       }
 "card2's"             {
-                          yy.parserHelper.onCard("card2's");
+                          //yy.parserHelper.onCard("card2's");
                           return 'CARD';
                       }
 "by"                  {

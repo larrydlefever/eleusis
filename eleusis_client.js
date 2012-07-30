@@ -948,9 +948,7 @@ function EleusisClient(theHost, theRuleGuessParser) {
             try {
                 result = ruleGuessParser.parse(eng);
             } catch(err) {
-                if(console && console.log) {
-                    console.log(err);
-                }
+                log(err);
                 result = err.toString();
                 if(result.indexOf("Unrecognized text") != -1) {
                     if(result.indexOf("difference") != -1) {

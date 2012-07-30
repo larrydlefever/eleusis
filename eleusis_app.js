@@ -14,11 +14,18 @@
 
 $(document).ready(function() {
 
+    function log(m) {
+        if(console && console.log) {
+            console.log(m);
+        }
+    }
+
     var english = ""; // TODO: REMOVE THIS! it's superfluous (and requires being kept in-sync with the textarea)
+    var lastWord = "";
 
     var sw = $('#stringWidthScratchPad').css('width');
     var sh = $('#stringWidthScratchPad').css('height');
-    console.log("string-dims: w:" + sw + "; h: " + sh);
+    log("string-dims: w:" + sw + "; h: " + sh);
 
     function getEnglishDims() {
         var sw = $('#stringWidthScratchPad').css('width');
@@ -30,43 +37,21 @@ $(document).ready(function() {
 
         var sh = $('#stringWidthScratchPad').css('height');
         sh = sh.substring(0, sh.length - 2);
-        console.log("string-dims: w: " + sw + "; h: " + sh);
+        log("string-dims: w: " + sw + "; h: " + sh);
+
+        if(sw > $('#guessContentEng').width()) { // TODO: refine this (account for font-size; handle > 2 lines)
+            sw = sw % $('#guessContentEng').width();
+            sh = parseInt(sh);
+            sh += 20;
+        }
+
+        log("adjusted string-dims: w: " + sw + "; h: " + sh);
+
         return {
             sw: sw,
             sh: sh
         };
     }
-
-    $(function(){
-
-        $.contextMenu({
-            selector: '#guessContentEng',
-            callback: function(key, options) {
-                var m = "clicked: " + key;
-                if(console && console.log) console.log(m);
-                english += key;
-                $('#guessContentEng').val($('#guessContentEng').val() + key);
-            },
-            items: {
-                "number": {name: "number"},
-                "suit": {name: "suit"},
-                "suit-color": {name: "suit-color"},
-                "suit-name": {name: "suit-name"}
-            },
-            determinePosition: function($menu, x, y) {
-
-                var engDims = getEnglishDims();
-
-                $menu.css('display', 'block').position({
-                        my: "left top",
-                        at: "left top",
-                        of: this,
-                        offset: (engDims.sw + " " + engDims.sh)
-                    }
-                ).css('display', 'none');
-            }
-        });
-    });
 
 ///////////////////////////////////////////////////////
 
@@ -94,11 +79,11 @@ $(document).ready(function() {
     }
 
     RuleGuessParserHelper.prototype.handleNumericCardPhrase = function(yy, card, cardTraitNumeric) {
-        //console.log("yy.foo: " + yy.foo);
+        //log("yy.foo: " + yy.foo);
         var card = card.substring(0, card.indexOf("'"));
         var trait = '.getOrdinal()';
         yy.cardTrait = trait;
-        //console.log("cardTrait: " + yy.cardTrait);
+        //log("cardTrait: " + yy.cardTrait);
         return card + trait;
     };
 
@@ -106,7 +91,7 @@ $(document).ready(function() {
     RuleGuessParserHelper.prototype.handleStringCardPhrase = function(yy, card, cardTraitString) {
         var card = card.substring(0, card.indexOf("'"));
         var trait = cardTraitString;
-        //console.log("cardTrait: " + yy.cardTrait);
+        //log("cardTrait: " + yy.cardTrait);
         trait = '.get' + trait.charAt(0).toUpperCase() + trait.substring(1) + '()';
         yy.cardTrait = trait;
         return card + trait;
@@ -146,13 +131,16 @@ $(document).ready(function() {
         }
     };
 
+    /* NO LONGER IN USE: was support for repeated incremental parsing, to guide user's
+        construction of rule-guesses
+
     RuleGuessParserHelper.prototype.onArithmetic = function(token) {
-        console.log("onArithmetic: token: " + token);
+        log("onArithmetic: token: " + token);
     };
 
     RuleGuessParserHelper.prototype.onCard = function(token) {
 
-        console.log("onCard: token: " + token +
+        log("onCard: token: " + token +
             "; english: '" + english + "'; eng.length: " + english.length + "; token.length: " + token.length);
 
         // only if token is at very end of english do we want to provide content-assist;
@@ -169,6 +157,7 @@ $(document).ready(function() {
         }
 
     };
+    */
 
 /////////////////////////////////////////////////////////
 
@@ -221,26 +210,135 @@ $(document).ready(function() {
         }
     });
 
-    function log(m) {
-        if(console && console.log) {
-            console.log(m);
+    var menuConfigsForWord = {
+        "initial": {
+            callback: function(key, options) {
+                var m = "clicked: " + key;
+                log(m);
+                english += key;
+                $('#guessContentEng').val($('#guessContentEng').val() + key);
+                lastWord = key;
+            },
+            items: {
+                "card1's": {name: "card1's"},
+                "card2's": {name: "card2's"},
+                "sum": {name: "sum"},
+                "product": {name: "product"}
+            },
+            determinePosition: function($menu, x, y) {
+
+                var engDims = getEnglishDims();
+
+                $menu.css('display', 'block').position({
+                        my: "left top",
+                        at: "left top",
+                        of: this,
+                        offset: (engDims.sw + " " + engDims.sh)
+                    }
+                ).css('display', 'none');
+            }
+        },
+        "card": {
+            callback: function(key, options) {
+                var m = "clicked: " + key;
+                log(m);
+                english += key;
+                $('#guessContentEng').val($('#guessContentEng').val() + key);
+            },
+            items: {
+                "number": {name: "number"},
+                "suit": {name: "suit"},
+                "suit-color": {name: "suit-color"},
+                "suit-name": {name: "suit-name"}
+            },
+            determinePosition: function($menu, x, y) {
+
+                var engDims = getEnglishDims();
+
+                $menu.css('display', 'block').position({
+                        my: "left top",
+                        at: "left top",
+                        of: this,
+                        offset: (engDims.sw + " " + engDims.sh)
+                    }
+                ).css('display', 'none');
+            }
+        },
+        "card2's": {
+
         }
-    }
+    };
+
+    $('#guessContentEng').focus(function() {
+        log("showing onfocus: initialMenu");
+        if($("#guessContentEng").val() == '' || $("#guessContentEng").val() == "") {
+            log("'guessContentEng' empty");
+            $.contextMenu('destroy');
+            $(function(){
+                $.contextMenu({
+                    selector: '.contentAssist',
+                    build: function($trigger, e) {
+                        log("building menu ...");
+                        return menuConfigsForWord['initial'];
+                    }
+                });
+            });
+            $('.contentAssist').contextMenu();
+        }
+    });
 
     $('#guessContentEng').keydown(function(e) {
+
         if(e.keyCode) {
+
             log("keyCode: " + e.keyCode);
+
             if(e.keyCode < 48) {
+
                 log("control-char: " + e.keyCode);
                 if(e.keyCode == 32) {
+
                     log("keydown: got space-char; new word added");
                     english += " ";
                     $('#guessContentEng').val($('#guessContentEng').val() + " ");
                     log("keydown: added space-char to textarea");
-                    eleusis.englishToJS(english);
+
+                    $('<div/>', {
+                        id: 'stringWidthScratchPad',
+                        style: "display: block;"
+                    }).appendTo($('#stringDimsHolder'));
+
+                    //$('#stringWidthScratchPad').html(english); // for pixel-offset in def of context-menu
+                    $('#stringWidthScratchPad').html($('#guessContentEng').val());
+
+                    var tmpLastWord = lastWord.trim();
+                    lastWord = "";
+                    log("keydown: tmpLastWord: " + tmpLastWord);
+
+                    if(tmpLastWord == "card1's" || tmpLastWord == "card2's") {
+                        tmpLastWord = "card";
+                    }
+
+                    var menuConfig = menuConfigsForWord[tmpLastWord];
+                    log(menuConfig);
+
+                    if(menuConfig) {
+                        $.contextMenu('destroy');
+                        $(function(){
+                            $.contextMenu({
+                                selector: '.contentAssist',
+                                build: function($trigger, e) {
+                                    return menuConfig;
+                                }
+                            });
+                        });
+                        $('.contentAssist').contextMenu();
+                    }
+
+                    //eleusis.englishToJS(english);
 
                 } else if(e.keyCode == 8) { // backspace
-                    if(english != "") {
+                    if(english && english != "") {
                         english = english.substring(0, english.length-1);
                     }
                 }
@@ -258,6 +356,8 @@ $(document).ready(function() {
             log("keypress: char: '" + char + "'");
             english += char;
             log("keypress: english: " + english);
+            lastWord += char;
+            log("keypress: lastWord: " + lastWord);
         } else {
             e.preventDefault();
         }
@@ -379,6 +479,7 @@ $(document).ready(function() {
     $('#ruleGuessBtn').click(function() {
 //        if(eleusis.assertShowModal('#guessRuleModal')) {
             $('#guessRuleModal').dialog('open');
+            $('#guessContentEng').focus();
 //        }
         return false;
     });
