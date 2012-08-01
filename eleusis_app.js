@@ -222,8 +222,8 @@ $(document).ready(function() {
             items: {
                 "card1's": {name: "card1's"},
                 "card2's": {name: "card2's"},
-                "sum": {name: "sum"},
-                "product": {name: "product"}
+                "the sum of": {name: "the sum of"},
+                "the product of": {name: "the product of"}
             },
             determinePosition: function($menu, x, y) {
 
