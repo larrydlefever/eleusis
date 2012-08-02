@@ -5,13 +5,9 @@
     <title>Eleusis</title>
     <link rel="stylesheet" type="text/css" href="eleusis.css" />
     <link type="text/css" href="jquery-ui-1.8.19.custom.css" rel="stylesheet" />
-    <link type="text/css" href="jquery.contextMenu.css" rel="stylesheet" />
 
     <!-- <script type="text/javascript" src="jquery.min.js"></script> -->
     <script type="text/javascript" src="jquery-1.7.1.min.js"></script>
-
-    <!-- see: http://medialize.github.com/jQuery-contextMenu/demo/trigger-custom.html -->
-    <script type="text/javascript" src="jquery.contextMenu.js"></script>
 
     <script type="text/javascript" src="jquery-ui-1.8.19.custom.min.js"></script>
 
@@ -23,10 +19,6 @@
 </head>
 <body style="position: relative;" bgcolor="#00AAFF">
 <font face="arial">
-
-<div id="stringDimsHolder" style="display: block">
-    <div id="stringWidthScratchPad" style="display: none"></div>
-</div>
 
 <a href="https://github.com/larrydlefever/eleusis" target="_blank"><b>Source on GitHub</b></a>
 <center>
@@ -91,6 +83,7 @@
             Mystery Rule's Description:<br/>
             <div id="guessedRuleDescr" style="background-color: white">(as yet unknown)</div>
             <form onsubmit="return false;">
+                <!--
                 <font size="-1">
                 <br/><b>Tips for writing your Mystery-Rule Guesses:</b><br/>
                 <ul>
@@ -125,10 +118,67 @@
                     </li>
                 </ul>
                 </font>
+                -->
                 <br/>
 
+                <div id="ruleGuessBuilder">
+
+                    <div id="boolDiv" style="display: none">
+                        <select id="boolDivChoice">
+                            <option value="and">and</option>
+                            <option value="or">or</option>
+                        </select>
+                    </div>
+
+                    <div id="clause_1" style="width: 560px; border: 2px solid #0000FF">
+                        <span>card1's</span>
+                        <select id="clause_1-card1-prop">
+                            <option value="number">number</option>
+                            <option value="suit">suit</option>
+                            <option value="suitColor">suitColor</option>
+                            <option value="suitName">suitName</option>
+                        </select>
+
+                        <!-- TODO: if arithmetic is chosen, then append to this clause: "is {select-num-trait}" -->
+                        <select id="clause_1-op">
+                            <option value="+">+</option>
+                            <option value="-">-</option>
+                            <option value="*">x</option>
+                            <option value="==">=</option>
+                            <option value="&lt;">&lt;</option>
+                            <option value="&lt;=">&lt;=</option>
+                            <option value="&gt;">&gt;</option>
+                            <option value="&gt;=">&gt;=</option>
+                        </select>
+                        <span>card2's</span>
+                        <select id="clause_1-card2-prop">
+                            <option value="number">number</option>
+                            <option value="suit">suit</option>
+                            <option value="suitColor">suitColor</option>
+                            <option value="suitName">suitName</option>
+                        </select>
+                        <!-- TODO: needs to be a span? -->
+                        <span id="clause_1-num-trait-span" style="display: none">
+                            <span> is </span>
+                            <select id="clause_1-num-trait">
+                                <option value="odd">odd</option>
+                                <option value="even">even</option>
+                                <option value="prime">prime</option>
+                                <option value="round-binary">round-binary</option>
+                            </select>
+                        </span>
+                    </div>
+
+                    <div id="addRulePieceDiv">
+                        <button id="addRulePiece">Add Rule-Piece</button>
+                    </div>
+
+
+                </div>
+
+                <!--
                 <div id="guessContentDiv" style="display: none;">
-                    <button id="viewEngBtn">View English</button><button id="refreshJSBtn">Refresh</button><br/>
+                    <button id="viewEngBtn">View English</button><br/>
                 <b>function rule(card1, card2) {</b><br/>
                 <textarea id="guessContent" disabled="disabled" rows="5" cols="67"></textarea><br/>
                 <b>}</b>&nbsp;&nbsp;<button id="guessBtn">Guess</button><br/>
@@ -136,8 +186,10 @@
 
                 <div id="guessContentEngDiv" style="display: block;">
                     <button id="viewJSBtn">View Code</button>
-                <textarea id="guessContentEng" class="contentAssist" style="width:560px;" rows="5" cols="67"></textarea><br/>
+                <textarea id="guessContentEng" style="width:560px;" rows="5" cols="67"></textarea><br/>
                 </div>
+                -->
+
             </form>
         </div>
 

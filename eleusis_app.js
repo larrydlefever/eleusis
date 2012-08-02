@@ -20,150 +20,7 @@ $(document).ready(function() {
         }
     }
 
-    var english = ""; // TODO: REMOVE THIS! it's superfluous (and requires being kept in-sync with the textarea)
-    var lastWord = "";
-
-    var sw = $('#stringWidthScratchPad').css('width');
-    var sh = $('#stringWidthScratchPad').css('height');
-    log("string-dims: w:" + sw + "; h: " + sh);
-
-    function getEnglishDims() {
-        var sw = $('#stringWidthScratchPad').css('width');
-        sw = sw.substring(0, sw.length - 2);
-        sw = parseInt(sw);
-        if(english != " ") {
-            sw = Math.floor(sw + (sw * .2));
-        }
-
-        var sh = $('#stringWidthScratchPad').css('height');
-        sh = sh.substring(0, sh.length - 2);
-        log("string-dims: w: " + sw + "; h: " + sh);
-
-        if(sw > $('#guessContentEng').width()) { // TODO: refine this (account for font-size; handle > 2 lines)
-            sw = sw % $('#guessContentEng').width();
-            sh = parseInt(sh);
-            sh += 20;
-        }
-
-        log("adjusted string-dims: w: " + sw + "; h: " + sh);
-
-        return {
-            sw: sw,
-            sh: sh
-        };
-    }
-
-///////////////////////////////////////////////////////
-
-    function RuleGuessParserHelper() {
-
-        this.binaryBooleans = {
-            and: " && ",
-            "while": " && ",
-            but: " && ",
-            or: " || "
-        };
-
-        this.relationals = {
-            equal: "= ",
-            same: "= ",
-            greater: "> ",
-            less: "< ",
-            different: "!= "
-        };
-
-        this.arithmetics = {
-            sum: " + ",
-            product: " * "
-        };
-    }
-
-    RuleGuessParserHelper.prototype.handleNumericCardPhrase = function(yy, card, cardTraitNumeric) {
-        //log("yy.foo: " + yy.foo);
-        var card = card.substring(0, card.indexOf("'"));
-        var trait = '.getOrdinal()';
-        yy.cardTrait = trait;
-        //log("cardTrait: " + yy.cardTrait);
-        return card + trait;
-    };
-
-
-    RuleGuessParserHelper.prototype.handleStringCardPhrase = function(yy, card, cardTraitString) {
-        var card = card.substring(0, card.indexOf("'"));
-        var trait = cardTraitString;
-        //log("cardTrait: " + yy.cardTrait);
-        trait = '.get' + trait.charAt(0).toUpperCase() + trait.substring(1) + '()';
-        yy.cardTrait = trait;
-        return card + trait;
-    };
-
-    RuleGuessParserHelper.prototype.getBinaryBooleanSymbol = function(r) {
-        return this.binaryBooleans[r];
-    };
-
-    RuleGuessParserHelper.prototype.getRelationalSymbol = function(verbPhrase, r) {
-        if(r == 'different') {
-            return this.relationals['different'];
-        }
-        if(r == 'greater' || r == 'less') {
-            return this.relationals[r];
-        }
-        if(verbPhrase == '=' || verbPhrase == '!') {
-            return verbPhrase + this.relationals['equal'];
-        }
-
-        //TODO: handle "not greater than", "not less than" ?
-
-        return this.relationals[r];
-    };
-
-    RuleGuessParserHelper.prototype.getArithmeticSymbol = function(a) {
-        return this.arithmetics[a];
-    };
-
-    RuleGuessParserHelper.prototype.getMethodForCardTraitStringPlural = function(p) {
-        if(p == "suitColors") {
-            return ".getSuitColor()";
-        } else if(p == "suitNames") {
-            return ".getSuitName()";
-        } else {
-            return "unknownMethod()";
-        }
-    };
-
-    /* NO LONGER IN USE: was support for repeated incremental parsing, to guide user's
-        construction of rule-guesses
-
-    RuleGuessParserHelper.prototype.onArithmetic = function(token) {
-        log("onArithmetic: token: " + token);
-    };
-
-    RuleGuessParserHelper.prototype.onCard = function(token) {
-
-        log("onCard: token: " + token +
-            "; english: '" + english + "'; eng.length: " + english.length + "; token.length: " + token.length);
-
-        // only if token is at very end of english do we want to provide content-assist;
-        // subtracting one from token.length because it lacks the space-char that triggers this
-        if(english && english.indexOf(token) == (english.length - token.length - 1)) {
-
-            $('<div/>', {
-                id: 'stringWidthScratchPad',
-                style: "display: block;"
-            }).appendTo($('#stringDimsHolder'));
-
-            $('#stringWidthScratchPad').html(english); // for pixel-offset in def of context-menu
-            $('#guessContentEng').contextMenu();
-        }
-
-    };
-    */
-
-/////////////////////////////////////////////////////////
-
-    ruleGuessParser.yy.parserHelper = new RuleGuessParserHelper();
-
-    var eleusis = new EleusisClient($(location).attr('host'), ruleGuessParser);
+    var eleusis = new EleusisClient($(location).attr('host'));
 
     $.ajaxSetup({
         cache: false
@@ -209,160 +66,6 @@ $(document).ready(function() {
             $(this).val('');
         }
     });
-
-    var menuConfigsForWord = {
-        "initial": {
-            callback: function(key, options) {
-                var m = "clicked: " + key;
-                log(m);
-                english += key;
-                $('#guessContentEng').val($('#guessContentEng').val() + key);
-                lastWord = key;
-            },
-            items: {
-                "card1's": {name: "card1's"},
-                "card2's": {name: "card2's"},
-                "the sum of": {name: "the sum of"},
-                "the product of": {name: "the product of"}
-            },
-            determinePosition: function($menu, x, y) {
-
-                var engDims = getEnglishDims();
-
-                $menu.css('display', 'block').position({
-                        my: "left top",
-                        at: "left top",
-                        of: this,
-                        offset: (engDims.sw + " " + engDims.sh)
-                    }
-                ).css('display', 'none');
-            }
-        },
-        "card": {
-            callback: function(key, options) {
-                var m = "clicked: " + key;
-                log(m);
-                english += key;
-                $('#guessContentEng').val($('#guessContentEng').val() + key);
-            },
-            items: {
-                "number": {name: "number"},
-                "suit": {name: "suit"},
-                "suit-color": {name: "suit-color"},
-                "suit-name": {name: "suit-name"}
-            },
-            determinePosition: function($menu, x, y) {
-
-                var engDims = getEnglishDims();
-
-                $menu.css('display', 'block').position({
-                        my: "left top",
-                        at: "left top",
-                        of: this,
-                        offset: (engDims.sw + " " + engDims.sh)
-                    }
-                ).css('display', 'none');
-            }
-        },
-        "card2's": {
-
-        }
-    };
-
-    $('#guessContentEng').focus(function() {
-        log("showing onfocus: initialMenu");
-        if($("#guessContentEng").val() == '' || $("#guessContentEng").val() == "") {
-            log("'guessContentEng' empty");
-            $.contextMenu('destroy');
-            $(function(){
-                $.contextMenu({
-                    selector: '.contentAssist',
-                    build: function($trigger, e) {
-                        log("building menu ...");
-                        return menuConfigsForWord['initial'];
-                    }
-                });
-            });
-            $('.contentAssist').contextMenu();
-        }
-    });
-
-    $('#guessContentEng').keydown(function(e) {
-
-        if(e.keyCode) {
-
-            log("keyCode: " + e.keyCode);
-
-            if(e.keyCode < 48) {
-
-                log("control-char: " + e.keyCode);
-                if(e.keyCode == 32) {
-
-                    log("keydown: got space-char; new word added");
-                    english += " ";
-                    $('#guessContentEng').val($('#guessContentEng').val() + " ");
-                    log("keydown: added space-char to textarea");
-
-                    $('<div/>', {
-                        id: 'stringWidthScratchPad',
-                        style: "display: block;"
-                    }).appendTo($('#stringDimsHolder'));
-
-                    //$('#stringWidthScratchPad').html(english); // for pixel-offset in def of context-menu
-                    $('#stringWidthScratchPad').html($('#guessContentEng').val());
-
-                    var tmpLastWord = lastWord.trim();
-                    lastWord = "";
-                    log("keydown: tmpLastWord: " + tmpLastWord);
-
-                    if(tmpLastWord == "card1's" || tmpLastWord == "card2's") {
-                        tmpLastWord = "card";
-                    }
-
-                    var menuConfig = menuConfigsForWord[tmpLastWord];
-                    log(menuConfig);
-
-                    if(menuConfig) {
-                        $.contextMenu('destroy');
-                        $(function(){
-                            $.contextMenu({
-                                selector: '.contentAssist',
-                                build: function($trigger, e) {
-                                    return menuConfig;
-                                }
-                            });
-                        });
-                        $('.contentAssist').contextMenu();
-                    }
-
-                    //eleusis.englishToJS(english);
-
-                } else if(e.keyCode == 8) { // backspace
-                    if(english && english != "") {
-                        english = english.substring(0, english.length-1);
-                    }
-                }
-            }
-        }
-    });
-
-    $('#guessContentEng').keypress(function(e) {
-        var char;
-        if (event.which == null)
-            char = String.fromCharCode(event.keyCode);    // old IE
-        else if (event.which != 0 && event.charCode != 0) // All others
-            char = String.fromCharCode(event.which);
-        if(char != " ") {
-            log("keypress: char: '" + char + "'");
-            english += char;
-            log("keypress: english: " + english);
-            lastWord += char;
-            log("keypress: lastWord: " + lastWord);
-        } else {
-            e.preventDefault();
-        }
-    });
-
 
     $('#guessRuleModal').dialog({
         autoOpen: false,
@@ -462,8 +165,8 @@ $(document).ready(function() {
     $('#viewJSBtn').click(function() {
         $('#guessContentEngDiv').css('display', 'none');
         $('#guessContentDiv').css('display', 'block');
-        var input = $('#guessContentEng').val();
-        eleusis.englishToJS($.trim(input));
+        //var input = $('#guessContentEng').val();
+        //eleusis.englishToJS($.trim(input));
     });
 
     $('#viewEngBtn').click(function() {
@@ -471,15 +174,10 @@ $(document).ready(function() {
         $('#guessContentDiv').css('display', 'none');
     });
 
-    $('#refreshJSBtn').click(function() {
-        eleusis.englishToJS(english);
-    });
-
 
     $('#ruleGuessBtn').click(function() {
 //        if(eleusis.assertShowModal('#guessRuleModal')) {
             $('#guessRuleModal').dialog('open');
-            $('#guessContentEng').focus();
 //        }
         return false;
     });
@@ -508,6 +206,40 @@ $(document).ready(function() {
         $('#helpModal').dialog('open');
         return false;
     });
+
+
+    $('#addRulePiece').click(function() {
+
+        var $boolDivClone,
+            $clauseClone;
+
+        $boolDivClone = $("#boolDiv").clone(false);
+        $boolDivClone.css('display', 'block');
+        $boolDivClone.find("*[id]").andSelf().each(function() {
+                $(this).attr('id',function(i,id) {
+                    return id + "_cloned";
+                })
+            }
+        );
+
+        $clauseClone = $("#clause_1").clone(false);
+        $clauseClone.find("*[id]").andSelf().each(function() {
+                $(this).attr('id',function(i,id) {
+                    return id + "_cloned";
+                })
+            }
+        );
+
+        $boolDivClone.insertBefore('#addRulePieceDiv');
+        $clauseClone.insertBefore('#addRulePieceDiv');
+    });
+
+    $("#clause_1-op").change(function() {
+        $("select option:selected").each(function() {
+            $('#clause_1-num-trait-span').show();
+        });
+    });
+
 
     eleusis.fillGamesList();
 });

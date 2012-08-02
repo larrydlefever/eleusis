@@ -6,7 +6,7 @@
  * To change this template use File | Settings | File Templates.
  */
 
-function EleusisClient(theHost, theRuleGuessParser) {
+function EleusisClient(theHost) {
 
     //NOTE: assuming using cards.png
     var SPRITE_OFFSET_X_INCREMENT = '73';
@@ -17,8 +17,6 @@ function EleusisClient(theHost, theRuleGuessParser) {
     var currGame = null;
     var currGameChannel = null; //TODO: put this into currGame?
     var myUsername = null;
-
-    var ruleGuessParser = theRuleGuessParser;
 
     function log(msg) {
         if(window.console) {
@@ -941,29 +939,6 @@ function EleusisClient(theHost, theRuleGuessParser) {
         },
         testMarshal: function() {
             invoke('marshal', null);
-        },
-        englishToJS: function(eng) {
-
-            var result = null;
-            try {
-                result = ruleGuessParser.parse(eng);
-            } catch(err) {
-                log(err);
-                result = err.toString();
-                if(result.indexOf("Unrecognized text") != -1) {
-                    if(result.indexOf("difference") != -1) {
-                        result = "ERROR: 'difference' not recognized:\n";
-                        result += "HINT: for 'difference between', try instead a relational approach: 'foo is greater than bar by ...'";
-                    } else {
-                        result += "\nHINT: the word pointed to, above, can't be used in rule-guesses.";
-                    }
-                } else if(result.indexOf('Expecting') != -1) {
-                    result = result.substring(0, result.indexOf('Expecting'));
-                    result += "HINT: the word pointed to, above, is understood, but it's not allowed in that position.  In some cases, you can just leave it out.";
-                }
-            }
-
-            $('#guessContent').val(result);
         }
     };
 
