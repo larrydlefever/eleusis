@@ -279,10 +279,6 @@ $(document).ready(function() {
             $clauseClone.insertBefore('#addRulePieceDiv');
         }
 
-        // TODO: use visibility instead of display for showing of delete buttons (to reserve space for each);
-        // TODO:  for each cloning, make the clone's delete button visible and hide the preceding one's delete button;
-        // TODO:  i.e., support deletion of only the last added 'row'
-
         $('#delete-clause-' + (rulePieceCounter-1)).css('visibility', 'hidden');
         $('#delete-clause-' + rulePieceCounter).css('visibility', 'visible');
 
