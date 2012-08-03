@@ -6,6 +6,90 @@
  * To change this template use File | Settings | File Templates.
  */
 
+function RuleGuessClause($clause) {
+    this.$clause = $clause;
+    /*  handle transformation in the relevant getters
+    this.bool = null; //bool.replace(/&amp;/g, '&');
+    this.cardTrait1 = null;
+    this.op = null; // op.replace(/&lt;/g, '&');  // do also for gt, etc.
+    this.cardTrait2 = null;
+    this.opResultTrait = null;
+    */
+}
+
+RuleGuessClause.prototype = {
+    getBool: function() {
+        // get bool from relevant child-elem within this.$clause
+        //bool.replace(/&amp;/g, '&');
+    },
+    getCardTrait1: function() {
+        // return something like: "getOrdinal()"
+    },
+    getOp: function() {
+
+    },
+    getCardTrait2: function() {
+
+    },
+    getOpResultTrait: function() {
+
+    }
+};
+
+RuleGuessClause.prototype.toString = function() {
+    var result = "";
+    // build string by calling relevant getters (lazy init)
+};
+
+function RuleGuessClauseGroup($clauses) {
+    var self = this;
+    self.clauses = {};
+
+    $clauses.each(function() {
+        self.clauses[$(this).attr('id')] = new RuleGuessClause($(this));
+    });
+}
+
+RuleGuessClauseGroup.prototype.toString = function() {
+    var result = "";
+    if(!self.clauses) return "EMPTY_GROUP";
+    //TODO: BUG! using object as assoc-array; so, no "length" and no subscripting!
+    //TODO: but do need assoc-array, to efficiently access clauses for removal;
+    //TODO: then again, at least for now, will be removing only the "last" one;
+    //TODO: maybe simple array is better: ary.pop(), to remove last one
+    if(self.clauses.length == 1) return self.clauses[0].toString();
+    result += "(";
+
+    for(var i = 0; i < self.clauses.length; i++) {
+        result += self.clauses[i].toString();
+    }
+    result += ")";
+    return result;
+};
+
+
+function RuleGuess($builderRoot) {
+
+    this.builderRoot = $builderRoot;
+    this.ruleGuess = {
+        "groups": [],
+        "clause": {} // either there's only one, or there's an odd number: n pairs plus one left over
+    };
+
+    $builderRoot.find('div[id|="group-"]').each(function() {
+
+    });
+}
+
+RuleGuess.prototype.update = function() {
+    // accept id of relevant drop-down, along with newly selected value;
+    // but also need to handle deletions (of clauses) and hidings (e.g., of is-num-trait spans);
+    // actually, the latter is a side-effect of a selection
+};
+
+
+
+
 function EleusisClient(theHost) {
 
     //NOTE: assuming using cards.png
@@ -17,6 +101,8 @@ function EleusisClient(theHost) {
     var currGame = null;
     var currGameChannel = null; //TODO: put this into currGame?
     var myUsername = null;
+    var ruleGuess = null;
+
 
     function log(msg) {
         if(window.console) {
@@ -849,7 +935,16 @@ function EleusisClient(theHost) {
         return true;
     }
 
+    function doInitRuleGuess($builderRoot) {
+
+    }
+
+
+
     return {
+        initRuleGuess: function($builderRoot) {
+            doInitRuleGuess($builderRoot);
+        },
         setMsg: function(msg) {
             setMsg('#serverMsgs', msg);
         },
