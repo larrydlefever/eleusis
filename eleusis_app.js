@@ -207,37 +207,121 @@ $(document).ready(function() {
         return false;
     });
 
+    var rulePieceCounter = 1;
 
     $('#addRulePiece').click(function() {
 
         var $boolDivClone,
             $clauseClone;
 
-        $boolDivClone = $("#boolDiv").clone(false);
+        $boolDivClone = $("#boolDiv-1").clone(false);
         $boolDivClone.css('display', 'block');
         $boolDivClone.find("*[id]").andSelf().each(function() {
                 $(this).attr('id',function(i,id) {
-                    return id + "_cloned";
+                    log("id: " + id);
+                    var suffix, uscoreIdx;
+                    if((uscoreIdx = id.lastIndexOf('-')) != -1) {
+                        log("uscoreIdx: " + uscoreIdx);
+                        suffix = id.substring(uscoreIdx+1);
+                        if($.isNumeric(suffix)) {
+                            log("isNumeric: suffix: " + suffix);
+                            id = id.substring(0, uscoreIdx+1) + (parseInt(suffix) + rulePieceCounter);
+                        }
+                    }
+                    log("new id: " + id);
+                    return id;
                 })
             }
         );
 
-        $clauseClone = $("#clause_1").clone(false);
+        $clauseClone = $("#clause-1").clone(false);
         $clauseClone.find("*[id]").andSelf().each(function() {
                 $(this).attr('id',function(i,id) {
-                    return id + "_cloned";
+                    log("id: " + id);
+                    var suffix, uscoreIdx;
+                    if((uscoreIdx = id.lastIndexOf('-')) != -1) {
+                        suffix = id.substring(uscoreIdx+1);
+                        if($.isNumeric(suffix)) {
+                            log("isNumeric");
+                            id = id.substring(0, uscoreIdx+1) + (parseInt(suffix) + rulePieceCounter);
+                        }
+                    }
+                    log("new id: " + id);
+                    return id;
                 })
             }
         );
 
-        $boolDivClone.insertBefore('#addRulePieceDiv');
-        $clauseClone.insertBefore('#addRulePieceDiv');
+        rulePieceCounter++; //TODO: be sure to decrement when removing a 'row'
+
+        var $groupDiv;
+
+        if(rulePieceCounter % 2 == 0) { // dealing with second of a pair, of possibly multiple pairs)
+            $groupDiv = $('<div/>', {
+                id: ("group-" + (rulePieceCounter / 2)),
+                style: "border-left-width: 5px;" +
+                        "border-right-width: 5px;" +
+                        "border-left-style: double;" +
+                        "border-right-style: double;" +
+                        "border-left-color: #FF0000;" +
+                        "border-right-color: #FF0000;"
+            });
+        }
+
+        if($groupDiv) {
+            // get most recent 'row' and put it into this new group
+            $('#clause-' + (rulePieceCounter-1)).detach().appendTo($groupDiv);
+            $boolDivClone.appendTo($groupDiv);
+            $clauseClone.appendTo($groupDiv);
+            $groupDiv.insertBefore('#addRulePieceDiv');
+        } else {
+            $boolDivClone.insertBefore('#addRulePieceDiv');
+            $clauseClone.insertBefore('#addRulePieceDiv');
+        }
+
+        // TODO: use visibility instead of display for showing of delete buttons (to reserve space for each);
+        // TODO:  for each cloning, make the clone's delete button visible and hide the preceding one's delete button;
+        // TODO:  i.e., support deletion of only the last added 'row'
+
+        $('#delete-clause-' + (rulePieceCounter-1)).css('visibility', 'hidden');
+        $('#delete-clause-' + rulePieceCounter).css('visibility', 'visible');
+
     });
 
-    $("#clause_1-op").change(function() {
-        $("select option:selected").each(function() {
-            $('#clause_1-num-trait-span').show();
+    $(document).on('change', "select[id|='op-clause']", function() {
+        log("change");
+        $("option:selected", this).each(function() {
+            log("this.val: " + $(this).val());
+            if($(this).val() == "+" || $(this).val() == "-" || $(this).val() == "*") {
+                log($(this));
+                $(this).parent().siblings("span[id|='num-trait-span']").show();
+            } else {
+                log($(this));
+                $(this).parent().siblings("span[id|='num-trait-span']").hide();
+            }
         });
+    });
+
+    $(document).on('click', "button[id|='delete-clause']", function() {
+        var id = $(this).attr('id');
+        id = id.substring(id.lastIndexOf('-')+1);
+        log("click on delete: " + id);
+
+        var prevId = parseInt(id) - 1;
+
+        if(prevId > 1) {
+            $('#delete-clause-' + prevId).css('visibility', 'visible');
+        }
+        $('#delete-clause-' + id).css('visibility', 'hidden');
+
+        if($('#boolDiv-' + id).length > 0){
+            log("found boolDiv: " + id);
+            $('#boolDiv-' + id).remove();
+        }
+
+        $(this).parent().parent().remove();
+
+        --rulePieceCounter;
     });
 
 

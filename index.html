@@ -123,24 +123,26 @@
 
                 <div id="ruleGuessBuilder">
 
-                    <div id="boolDiv" style="display: none">
-                        <select id="boolDivChoice">
+                    <div id="boolDiv-1" style="display: none">
+                        <select id="boolDivChoice-1">
                             <option value="and">and</option>
                             <option value="or">or</option>
                         </select>
                     </div>
 
-                    <div id="clause_1" style="width: 560px; border: 2px solid #0000FF">
+                    <div id="clause-1" style="width: 560px; border: 1px solid #0000FF">
+
+                        <span><button id="delete-clause-1" style="visibility: hidden;"
+                                      title="Delete this piece">X</button></span>
                         <span>card1's</span>
-                        <select id="clause_1-card1-prop">
+                        <select id="card1-prop-clause-1">
                             <option value="number">number</option>
                             <option value="suit">suit</option>
                             <option value="suitColor">suitColor</option>
                             <option value="suitName">suitName</option>
                         </select>
 
-                        <!-- TODO: if arithmetic is chosen, then append to this clause: "is {select-num-trait}" -->
-                        <select id="clause_1-op">
+                        <select id="op-clause-1">
                             <option value="+">+</option>
                             <option value="-">-</option>
                             <option value="*">x</option>
@@ -151,16 +153,15 @@
                             <option value="&gt;=">&gt;=</option>
                         </select>
                         <span>card2's</span>
-                        <select id="clause_1-card2-prop">
+                        <select id="card2-prop-clause-1">
                             <option value="number">number</option>
                             <option value="suit">suit</option>
                             <option value="suitColor">suitColor</option>
                             <option value="suitName">suitName</option>
                         </select>
-                        <!-- TODO: needs to be a span? -->
-                        <span id="clause_1-num-trait-span" style="display: none">
+                        <span id="num-trait-span-clause-1">
                             <span> is </span>
-                            <select id="clause_1-num-trait">
+                            <select id="num-trait-clause-1">
                                 <option value="odd">odd</option>
                                 <option value="even">even</option>
                                 <option value="prime">prime</option>
@@ -172,7 +173,6 @@
                     <div id="addRulePieceDiv">
                         <button id="addRulePiece">Add Rule-Piece</button>
                     </div>
-
 
                 </div>
 
