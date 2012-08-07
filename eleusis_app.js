@@ -71,7 +71,7 @@ $(document).ready(function() {
 
     $('#guessRuleModal').dialog({
         autoOpen: false,
-        width: 600,
+        width: 650,
         buttons: {
             "Close": function() {
                 $(this).dialog("close");
@@ -254,10 +254,10 @@ $(document).ready(function() {
         if(rulePieceCounter % 2 == 0) { // dealing with second of a pair, of possibly multiple pairs)
             $groupDiv = $('<div/>', {
                 id: ("group-" + (rulePieceCounter / 2)),
-                style: "border-left-width: 5px;" +
+                style: "width: 623px; border-left-width: 5px;" +
                         "border-right-width: 5px;" +
-                        "border-left-style: double;" +
-                        "border-right-style: double;" +
+                        "border-left-style: solid;" +
+                        "border-right-style: solid;" +
                         "border-left-color: #FF0000;" +
                         "border-right-color: #FF0000;"
             });
@@ -276,6 +276,7 @@ $(document).ready(function() {
 
         $('#delete-clause-' + (rulePieceCounter-1)).css('visibility', 'hidden');
         $('#delete-clause-' + rulePieceCounter).css('visibility', 'visible');
+        $('#num-trait-span-clause-' + rulePieceCounter).show();
 
     });
 
@@ -314,8 +315,8 @@ $(document).ready(function() {
 
         $(this).parent().parent().remove();
 
-        // if count of clauses in relevant group is zero, then also remove that group
-        if($currGroup.children().length() == 0) $currGroup.remove();
+        // if was in a group and no more clauses therein, then also remove that group
+        if($currGroup && $currGroup.children().length == 0) $currGroup.remove();
 
         --rulePieceCounter;
     });
