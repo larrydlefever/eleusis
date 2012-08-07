@@ -26,7 +26,7 @@ $(document).ready(function() {
         cache: false
     });
 
-    eleusis.initRuleGuess($('#ruleGuessBuilder'));
+    //eleusis.initRuleGuess($('#ruleGuessBuilder'));
 
     //TODO: in case of browser-reload, execRemote to check for current User in any Game and init accordingly;
     //TODO:   however, once page reloaded, won't have any variables set anymore at this point; so, would need
@@ -156,14 +156,18 @@ $(document).ready(function() {
 
     $('#guessBtn').click(function() {
 
+        log("guessBtn clicked");
+        eleusis.initRuleGuess($('#ruleGuessBuilder'));
+        eleusis.showRuleGuess();
 
-
+        /*
         var guessContent = $('#guessContent').val();
         guessContent = {
             guessContent: guessContent,
             gameID: eleusis.getGameID()
         };
         eleusis.guessRule(guessContent);
+        */
     });
 
     $('#ruleGuessBtn').click(function() {
@@ -306,7 +310,12 @@ $(document).ready(function() {
             $('#boolDiv-' + id).remove();
         }
 
+        var $currGroup = $(this).parent().parent().parent();
+
         $(this).parent().parent().remove();
+
+        // if count of clauses in relevant group is zero, then also remove that group
+        if($currGroup.children().length() == 0) $currGroup.remove();
 
         --rulePieceCounter;
     });

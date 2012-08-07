@@ -6,62 +6,116 @@
  * To change this template use File | Settings | File Templates.
  */
 
-function RuleGuessClause($clause) {
-    this.$clause = $clause;
-    /*  handle transformation in the relevant getters
-    this.bool = null; //bool.replace(/&amp;/g, '&');
-    this.cardTrait1 = null;
-    this.op = null; // op.replace(/&lt;/g, '&');  // do also for gt, etc.
-    this.cardTrait2 = null;
-    this.opResultTrait = null;
-    */
+function log(msg) {
+    if(window.console) {
+        console.log(msg);
+    }
 }
+
+
+function RuleGuessClause($clause) {
+    var self = this;
+    self.$clause = $clause;
+}
+
+RuleGuessClause.CARD_TRAIT_METHODS = {
+    "number": "getOrdinal()",
+    "suit": "getSuit()",
+    "suitColor": "getSuitColor()",
+    "suitName": "getSuitName()"
+};
 
 RuleGuessClause.prototype = {
     getBool: function() {
-        // get bool from relevant child-elem within this.$clause
-        //bool.replace(/&amp;/g, '&');
+        var bool = null;
+        var id = this.$clause.attr('id');
+        id = id.substring(id.lastIndexOf('-')+1);
+        log("id: " + id);
+        var $boolDiv = this.$clause.siblings('div[id="boolDiv-' + id + '"]');
+        log(this.$clause.siblings());
+        $boolDiv.children('select').each(function() {
+            $("option:selected", this).each(function() {
+                bool = $(this).val();
+            });
+        });
+        bool.replace(/&amp;/g, '&');
+        return bool;
     },
     getCardTrait1: function() {
-        // return something like: "getOrdinal()"
+        var cardTrait1 = null;
+        this.$clause.children('select[id|=card1-prop]').each(function() {
+            $("option:selected", this).each(function() {
+                cardTrait1 = $(this).val();
+            });
+        });
+        return RuleGuessClause.CARD_TRAIT_METHODS[cardTrait1];
     },
     getOp: function() {
-
+        var op = null;
+        this.$clause.children('select[id|="op-clause"]').each(function() {
+            $("option:selected", this).each(function() {
+                op = $(this).val();
+            });
+        });
+        op.replace(/&lt;/g, '<');
+        op.replace(/&gt;/g, '>');
+        return op;
     },
     getCardTrait2: function() {
-
+        var cardTrait2 = null; // get from $clause
+        this.$clause.children('select[id|=card2-prop]').each(function() {
+            $("option:selected", this).each(function() {
+                cardTrait2 = $(this).val();
+            });
+        });
+        return RuleGuessClause.CARD_TRAIT_METHODS[cardTrait2];
     },
-    getOpResultTrait: function() {
+    getOpResultTraitExpr: function(expr) {
+        var symbol = null;
+        var $traitSpan = this.$clause.children("span[id|='num-trait-span']");
+        log("traitSpan display: " + $traitSpan.css('display'));
+        if($traitSpan.css('display') == "none") return null;
+        $traitSpan.children("select").each(function() {
+            $("option:selected", this).each(function() {
+                symbol = $(this).val();
+            });
+        });
+        return "NumberTrait.forSymbol('" + symbol + "').assert(" + expr + ")";
+    },
+    toJS: function() {
+        log("RuleGuessClause toJS");
+        var result = "";
 
+        if(this.$clause.attr('id') != 'clause-1') {
+            result += " " + this.getBool() + " ";
+        }
+
+        var expr = "card1." + this.getCardTrait1() + " " + this.getOp() + " card2." + this.getCardTrait2();
+        var traitExpr = this.getOpResultTraitExpr(expr);
+
+        result += traitExpr ? traitExpr : expr;
+
+        return result;
     }
 };
 
-RuleGuessClause.prototype.toString = function() {
-    var result = "";
-    // build string by calling relevant getters (lazy init)
-};
-
-function RuleGuessClauseGroup($clauses) {
+function RuleGuessClauseGroup($group) {
     var self = this;
+    var $clauses = $group.children('div[id|="clause"]');
     self.clauses = {};
 
     $clauses.each(function() {
+        log("adding clause to clauses");
         self.clauses[$(this).attr('id')] = new RuleGuessClause($(this));
     });
 }
 
-RuleGuessClauseGroup.prototype.toString = function() {
+RuleGuessClauseGroup.prototype.toJS = function() {
     var result = "";
-    if(!self.clauses) return "EMPTY_GROUP";
-    //TODO: BUG! using object as assoc-array; so, no "length" and no subscripting!
-    //TODO: but do need assoc-array, to efficiently access clauses for removal;
-    //TODO: then again, at least for now, will be removing only the "last" one;
-    //TODO: maybe simple array is better: ary.pop(), to remove last one
-    if(self.clauses.length == 1) return self.clauses[0].toString();
+    if(!this.clauses) return "EMPTY_GROUP";
     result += "(";
-
-    for(var i = 0; i < self.clauses.length; i++) {
-        result += self.clauses[i].toString();
+    for(var key in this.clauses) {
+        result += this.clauses[key].toJS();
     }
     result += ")";
     return result;
@@ -70,21 +124,53 @@ RuleGuessClauseGroup.prototype.toString = function() {
 
 function RuleGuess($builderRoot) {
 
+    var self = this;
+
+    log($builderRoot);
+
     this.builderRoot = $builderRoot;
-    this.ruleGuess = {
-        "groups": [],
-        "clause": {} // either there's only one, or there's an odd number: n pairs plus one left over
+    self.parts = {
+        "groups": []//,
+        //"clause": {} // either there's only one, or there's an odd number: n pairs plus one left over
     };
 
-    $builderRoot.find('div[id|="group-"]').each(function() {
+    $builderRoot.children('div[id|="group"]').each(function() {
+        log("RuleGuess ctor: got a group");
+        self.parts["groups"].push(new RuleGuessClauseGroup($(this)));
+    });
 
+    // use of "children" here should avoid picking up nested clauses (those within groups)
+    $builderRoot.children('div[id|="clause"]').each(function() {
+        log("RuleGuess ctor: got a clause");
+        self.parts["clause"] = new RuleGuessClause($(this));
     });
 }
 
+RuleGuess.prototype.toJS = function() {
+
+    var self = this;
+
+    var result = "return ";
+    log("RuleGuess prototype toJS");
+
+    if(!self.parts || (!self.parts["groups"] && !self.parts["clause"])) {
+        return "EMPTY_RULE_GUESS";
+    }
+
+    var groups = self.parts["groups"];
+    for(var i = 0; i < groups.length; i++) {
+        result += groups[i].toJS();
+    }
+
+    if(self.parts["clause"]) result += self.parts["clause"].toJS();
+
+    return result + ";";
+};
+
 RuleGuess.prototype.update = function() {
-    // accept id of relevant drop-down, along with newly selected value;
-    // but also need to handle deletions (of clauses) and hidings (e.g., of is-num-trait spans);
-    // actually, the latter is a side-effect of a selection
+    // shouldn't even need this method at all, because init "binds" to the DOM;
+    // so, since doing lazy-init in toString() methods, any changes will be automatically
+    // accounted for in this code
 };
 
 
@@ -103,12 +189,6 @@ function EleusisClient(theHost) {
     var myUsername = null;
     var ruleGuess = null;
 
-
-    function log(msg) {
-        if(window.console) {
-            console.log(msg);
-        }
-    }
 
     log("EleusisClient ctor: using host: " + host);
 
@@ -936,7 +1016,7 @@ function EleusisClient(theHost) {
     }
 
     function doInitRuleGuess($builderRoot) {
-
+        ruleGuess = new RuleGuess($builderRoot);
     }
 
 
@@ -944,6 +1024,9 @@ function EleusisClient(theHost) {
     return {
         initRuleGuess: function($builderRoot) {
             doInitRuleGuess($builderRoot);
+        },
+        showRuleGuess: function() {
+            log(ruleGuess.toJS());
         },
         setMsg: function(msg) {
             setMsg('#serverMsgs', msg);
