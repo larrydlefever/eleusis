@@ -25,32 +25,57 @@ RuleGuessClause.CARD_TRAIT_METHODS = {
     "suitName": "getSuitName()"
 };
 
+RuleGuessClause.OPS_ENG = {
+    "+": "plus",
+    "-": "minus",
+    "==": "is equal to",
+    "!=": "is not equal to",
+    ">": "is greater than",
+    "<": "is less than",
+    "<=": "is less than or equal to",
+    ">=": "is greater than or equal to"
+};
+
 RuleGuessClause.prototype = {
-    getBool: function() {
+    getBool: function(eng) {
         var bool = null;
         var id = this.$clause.attr('id');
         id = id.substring(id.lastIndexOf('-')+1);
         log("id: " + id);
         var $boolDiv = this.$clause.siblings('div[id="boolDiv-' + id + '"]');
-        log(this.$clause.siblings());
+        log($boolDiv);
+        log(this.$clause.parent().siblings('div[id="boolDiv-' + id + '"]'));
+        log("$boolDiv.length: " + $boolDiv.length);
+        if(!$boolDiv || $boolDiv.length == 0) {
+            // then need to go up and out of current group (which is not the first group)
+            $boolDiv = this.$clause.parent().siblings('div[id="boolDiv-' + id + '"]');
+        }
+        log($boolDiv);
+        //log(this.$clause.siblings());
         $boolDiv.children('select').each(function() {
             $("option:selected", this).each(function() {
                 bool = $(this).val();
             });
         });
         bool.replace(/&amp;/g, '&');
+        if(eng) {
+            bool = (bool == "&&") ? "and" : "or";
+        }
         return bool;
     },
-    getCardTrait1: function() {
+    getCardTrait1: function(eng) {
         var cardTrait1 = null;
         this.$clause.children('select[id|=card1-prop]').each(function() {
             $("option:selected", this).each(function() {
                 cardTrait1 = $(this).val();
             });
         });
+        if(eng) {
+            return cardTrait1;
+        }
         return RuleGuessClause.CARD_TRAIT_METHODS[cardTrait1];
     },
-    getOp: function() {
+    getOp: function(eng) {
         var op = null;
         this.$clause.children('select[id|="op-clause"]').each(function() {
             $("option:selected", this).each(function() {
@@ -59,18 +84,24 @@ RuleGuessClause.prototype = {
         });
         op.replace(/&lt;/g, '<');
         op.replace(/&gt;/g, '>');
+        if(eng) {
+            return RuleGuessClause.OPS_ENG[op];
+        }
         return op;
     },
-    getCardTrait2: function() {
+    getCardTrait2: function(eng) {
         var cardTrait2 = null; // get from $clause
         this.$clause.children('select[id|=card2-prop]').each(function() {
             $("option:selected", this).each(function() {
                 cardTrait2 = $(this).val();
             });
         });
+        if(eng) {
+            return cardTrait2;
+        }
         return RuleGuessClause.CARD_TRAIT_METHODS[cardTrait2];
     },
-    getOpResultTraitExpr: function(expr) {
+    getOpResultTraitExpr: function(expr, eng) {
         var symbol = null;
         var $traitSpan = this.$clause.children("span[id|='num-trait-span']");
         log("traitSpan display: " + $traitSpan.css('display'));
@@ -80,20 +111,55 @@ RuleGuessClause.prototype = {
                 symbol = $(this).val();
             });
         });
+        if(eng) {
+            return " is " + symbol;
+        }
         return "NumberTrait.forSymbol('" + symbol + "').assert(" + expr + ")";
     },
-    toJS: function() {
+    toJS: function(notInFirstGroup) {
         log("RuleGuessClause toJS");
         var result = "";
 
         if(this.$clause.attr('id') != 'clause-1') {
-            result += " " + this.getBool() + " ";
+            if(notInFirstGroup) { // I'm first clause in non-first group
+                result += " " + this.getBool() + " ( ";
+            } else {
+                result += " " + this.getBool() + " ";
+            }
         }
 
         var expr = "card1." + this.getCardTrait1() + " " + this.getOp() + " card2." + this.getCardTrait2();
         var traitExpr = this.getOpResultTraitExpr(expr);
 
         result += traitExpr ? traitExpr : expr;
+
+        return result;
+    },
+    toEng: function(notInFirstGroup) {
+        log("RuleGuessClause toEng");
+        var result = "";
+
+        if(this.$clause.attr('id') != 'clause-1') {
+            //result += " " + this.getBool('eng') + " ";
+            if(notInFirstGroup) { // I'm first clause in non-first group
+                var bool = this.getBool('eng');
+                if(bool == "and") {
+                    result += "; " + bool + " ";
+                } else {
+                    result += "; otherwise, ";
+                }
+            } else {
+                result += " " + this.getBool('eng') + " ";
+            }
+        }
+
+        var expr = "card1's " + this.getCardTrait1('eng') + " " + this.getOp('eng') +
+            " card2's " + this.getCardTrait2('eng');
+
+        var traitExpr = this.getOpResultTraitExpr(expr, 'eng');
+
+        result += expr;
+        if(traitExpr) result += traitExpr;
 
         return result;
     }
@@ -110,14 +176,36 @@ function RuleGuessClauseGroup($group) {
     });
 }
 
-RuleGuessClauseGroup.prototype.toJS = function() {
+RuleGuessClauseGroup.prototype.toJS = function(isNotFirstGroup) {
     var result = "";
     if(!this.clauses) return "EMPTY_GROUP";
-    result += "(";
+    if(!isNotFirstGroup) result += "(";
+    var parenFixed = false;
     for(var key in this.clauses) {
-        result += this.clauses[key].toJS();
+        if(isNotFirstGroup && !parenFixed) {
+            result += this.clauses[key].toJS(isNotFirstGroup);
+            parenFixed = true; // so as to do this only for first clause of non-first groups
+        } else {
+            result += this.clauses[key].toJS();
+        }
     }
     result += ")";
+    return result;
+};
+
+RuleGuessClauseGroup.prototype.toEng = function(isNotFirstGroup) {
+    var result = "";
+    if(!this.clauses) return "EMPTY_GROUP";
+    var parenFixed = false;
+    for(var key in this.clauses) {
+        //result += this.clauses[key].toEng();
+        if(isNotFirstGroup && !parenFixed) {
+            result += this.clauses[key].toEng(isNotFirstGroup);
+            parenFixed = true; // so as to do this only for first clause of non-first groups
+        } else {
+            result += this.clauses[key].toEng();
+        }
+    }
     return result;
 };
 
@@ -159,7 +247,7 @@ RuleGuess.prototype.toJS = function() {
 
     var groups = self.parts["groups"];
     for(var i = 0; i < groups.length; i++) {
-        result += groups[i].toJS();
+        result += groups[i].toJS(i != 0);
     }
 
     if(self.parts["clause"]) result += self.parts["clause"].toJS();
@@ -167,10 +255,25 @@ RuleGuess.prototype.toJS = function() {
     return result + ";";
 };
 
-RuleGuess.prototype.update = function() {
-    // shouldn't even need this method at all, because init "binds" to the DOM;
-    // so, since doing lazy-init in toString() methods, any changes will be automatically
-    // accounted for in this code
+RuleGuess.prototype.toEng = function() {
+
+    var self = this;
+
+    var result = "";
+    log("RuleGuess prototype toEng");
+
+    if(!self.parts || (!self.parts["groups"] && !self.parts["clause"])) {
+        return "EMPTY_RULE_GUESS";
+    }
+
+    var groups = self.parts["groups"];
+    for(var i = 0; i < groups.length; i++) {
+        result += groups[i].toEng(i != 0);
+    }
+
+    if(self.parts["clause"]) result += self.parts["clause"].toEng();
+
+    return result;
 };
 
 
@@ -420,7 +523,7 @@ function EleusisClient(theHost) {
     function playerGuessedRule(msg) {
         setMsg('#serverMsgs', msg.msg + "; eleusis-response: " + msg.statusMsg);
         var ruleArea = $('<textarea rows="5" cols="75"></textarea>');
-        ruleArea.text(msg.guessContent);
+        ruleArea.text(msg.guessContentEng);
         ruleArea.prependTo('#guesses');
     }
 
@@ -1027,6 +1130,7 @@ function EleusisClient(theHost) {
         },
         showRuleGuess: function() {
             log(ruleGuess.toJS());
+            log(ruleGuess.toEng());
         },
         setMsg: function(msg) {
             setMsg('#serverMsgs', msg);
@@ -1099,6 +1203,7 @@ function EleusisClient(theHost) {
             //TODO:   thanks to server-side login-check, which makes calling-user available to all(?) commands
             var guessContent = {
                 "guessContent": ruleGuess.toJS(),
+                "guessContentEng": ruleGuess.toEng(),
                 "callerUname": myUsername,
                 "gameID": currGame.getId()
             };

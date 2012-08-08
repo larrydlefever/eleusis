@@ -1379,6 +1379,9 @@ function CommandManager() {
         var guessContent = dataPosted.guessContent;
         console.log("in guessRuleCmd: guessContent: " + util.inspect(guessContent, true, null));
 
+        var guessContentEng = dataPosted.guessContentEng;
+        console.log("in guessRuleCmd: guessContentEng: " + util.inspect(guessContentEng, true, null));
+
         var callerUname = dataPosted.callerUname;
         console.log("in guessRuleCmd: callerUname: " + util.inspect(callerUname, true, null));
 
@@ -1394,6 +1397,7 @@ function CommandManager() {
                 status: guessResult.status,
                 statusMsg: guessResult.statusMsg,
                 guessContent: guessContent,
+                guessContentEng: guessContentEng,
                 callerUname: callerUname,
                 gameID: gameID,
                 msg: actionMsg
