@@ -1094,11 +1094,14 @@ function EleusisClient(theHost) {
             if(!assertIsMyTurn()) return;
             invoke('claimNoPlay', dataToPost);
         },
-        guessRule: function(guessContent) {
+        guessRule: function() {
             //TODO: FIXME: all this callerUname stuff (here and elsewhere) is redundant,
             //TODO:   thanks to server-side login-check, which makes calling-user available to all(?) commands
-            guessContent['callerUname'] = myUsername;
-            guessContent['gameID'] = currGame.getId();
+            var guessContent = {
+                "guessContent": ruleGuess.toJS(),
+                "callerUname": myUsername,
+                "gameID": currGame.getId()
+            };
             invoke('guessRule', guessContent);
         },
         getGameID: function() {

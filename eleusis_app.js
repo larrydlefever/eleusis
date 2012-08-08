@@ -26,8 +26,6 @@ $(document).ready(function() {
         cache: false
     });
 
-    //eleusis.initRuleGuess($('#ruleGuessBuilder'));
-
     //TODO: in case of browser-reload, execRemote to check for current User in any Game and init accordingly;
     //TODO:   however, once page reloaded, won't have any variables set anymore at this point; so, would need
     //TODO:   to get current User's identity from cookie (via client-side JS)
@@ -166,8 +164,8 @@ $(document).ready(function() {
             guessContent: guessContent,
             gameID: eleusis.getGameID()
         };
-        eleusis.guessRule(guessContent);
         */
+        eleusis.guessRule();
     });
 
     $('#ruleGuessBtn').click(function() {

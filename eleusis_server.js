@@ -225,6 +225,77 @@ function UserManager() {
 var userMgr = new UserManager();
 userMgr.loadUsers(usersPath);
 
+
+
+function NumberTrait() {
+    this.traits = {};
+}
+
+// would like this to be effectively "final", but how in JS?
+// check this.prototype.constructor and assert is "NumberTrait"?
+NumberTrait.prototype.register = function(key, traitInstance) {
+    this.traits[key] = traitInstance;
+};
+
+// would like this to be effectively "final", but how in JS?
+// check this.prototype.constructor and assert is "NumberTrait"?
+NumberTrait.prototype.registerAll = function(traits) {
+    for(var i = 0; i < traits.length; i++) {
+        var trait = traits[i];
+        this.register(trait.getKey(), trait);
+    }
+};
+
+// would like this to be effectively "final", but how in JS?
+// check this.prototype.constructor and assert is "NumberTrait"?
+NumberTrait.prototype.forSymbol = function(symbol) {
+    var trait = this.traits[symbol];
+    return trait ? trait : this.traits["null"];
+};
+
+NumberTrait.prototype.getKey = function() {
+    throw new Error("NumberTrait: must be implemented in a subclass");
+};
+
+NumberTrait.prototype.assert = function(expr) {
+    throw new Error("NumberTrait: must be implemented in a subclass");
+};
+
+function NullNumberTrait() {}
+NullNumberTrait.prototype = new NumberTrait();
+NullNumberTrait.prototype = {
+    getKey: function() {
+        return "null";
+    },
+    assert: function(exprResult) {
+        throw new Error("NullNumberTrait: assert is no-op");
+    }
+};
+
+function EvenNumberTrait() {}
+EvenNumberTrait.prototype = new NumberTrait();
+EvenNumberTrait.prototype = {
+    getKey: function() {
+        return "even";
+    },
+    assert: function(exprResult) {
+        return exprResult % 2 == 0;
+    }
+};
+
+// not really an abstract class, but meant to be used pretty much like one,
+// but as an instance, which facilitates testing (via injection), etc.;
+// in vm execution-context, expected to be called "NumberTrait", as if static
+var numberTrait = new NumberTrait();
+
+var traits = [
+    new NullNumberTrait(),
+    new EvenNumberTrait()
+];
+numberTrait.registerAll(traits);
+
+
+
 function RuleManager() {
 
     // loaded via loadRules(), on startup;
@@ -269,7 +340,7 @@ function RuleManager() {
         },
         storeRules: function(rulesPath) {
             console.log("RuleManager: storing Rules ...");
-            var dataStr = JSON.stringify(rules);
+            var dataStr = JSON.stringify(rules, null, "    ");
             console.log("RuleManager: storeRules: dataStr: " + dataStr);
             fs.writeFileSync(rulesPath, dataStr);
             console.log("RuleManager: all Rules stored.");
@@ -285,7 +356,11 @@ function RuleManager() {
                 //console.log("assertRule: chosenRule: " + chosenRule.name);
                 //console.log("assertRule: card1: " + card1.getOrdinal());
                 //console.log("assertRule: card2: " + card2.getOrdinal());
-                var context = {card1: card1, card2: card2};
+                var context = {
+                    card1: card1,
+                    card2: card2,
+                    "NumberTrait": numberTrait
+                };
                 //TODO: this approach is unsafe!
                 var result = vm.runInNewContext("(function(){" + chosenRule.ruleAsString + "})()", context);
                 //console.log("RuleManager assertRule (asString): vm-result: " + util.inspect(result, true, null));
@@ -297,6 +372,7 @@ function RuleManager() {
             }
         },
         checkRuleGuess: function(guessContent, context) {
+            context["NumberTrait"] = numberTrait;
             //TODO: this approach is unsafe!
             var result = vm.runInNewContext("(function(){" + guessContent + "})()", context);
             //console.log("RuleManager checkRuleGuess: vm-result: " + util.inspect(result, true, null));
