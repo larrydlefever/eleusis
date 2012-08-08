@@ -313,8 +313,16 @@ $(document).ready(function() {
 
         $(this).parent().parent().remove();
 
-        // if was in a group and no more clauses therein, then also remove that group
-        if($currGroup && $currGroup.children().length == 0) $currGroup.remove();
+        if($currGroup) {
+            if($currGroup.children().length == 0) {
+                $currGroup.remove();
+            } else if($currGroup.children().length == 1) {
+                var clause = $currGroup.children()[0];
+                log(clause);
+                $(clause).detach().insertBefore('#addRulePieceDiv');
+                $currGroup.remove();
+            }
+        }
 
         --rulePieceCounter;
     });
