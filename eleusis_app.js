@@ -153,18 +153,9 @@ $(document).ready(function() {
     });
 
     $('#guessBtn').click(function() {
-
         log("guessBtn clicked");
         eleusis.initRuleGuess($('#ruleGuessBuilder'));
         eleusis.showRuleGuess();
-
-        /*
-        var guessContent = $('#guessContent').val();
-        guessContent = {
-            guessContent: guessContent,
-            gameID: eleusis.getGameID()
-        };
-        */
         eleusis.guessRule();
     });
 

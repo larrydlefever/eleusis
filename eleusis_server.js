@@ -31,6 +31,7 @@ var bayeux = new faye.NodeAdapter({mount: '/eleusisGames', timeout: 45});
 
 var usersPath = null;
 var rulesPath = null;
+var forcedRule = null;
 
 try {
     console.log("cmdln-args:");
@@ -42,6 +43,10 @@ try {
         if(val == "-rp") {
             rulesPath = array[index+1];
             console.log("\t rulesPath (-rp): " + rulesPath);
+        }
+        if(val == "-fr") {
+            forcedRule = array[index+1];
+            console.log("\t forcedRule (-fr): " + forcedRule);
         }
     });
 } catch(err) {
@@ -231,14 +236,10 @@ function NumberTrait() {
     this.traits = {};
 }
 
-// would like this to be effectively "final", but how in JS?
-// check this.prototype.constructor and assert is "NumberTrait"?
 NumberTrait.prototype.register = function(key, traitInstance) {
     this.traits[key] = traitInstance;
 };
 
-// would like this to be effectively "final", but how in JS?
-// check this.prototype.constructor and assert is "NumberTrait"?
 NumberTrait.prototype.registerAll = function(traits) {
     for(var i = 0; i < traits.length; i++) {
         var trait = traits[i];
@@ -246,8 +247,6 @@ NumberTrait.prototype.registerAll = function(traits) {
     }
 };
 
-// would like this to be effectively "final", but how in JS?
-// check this.prototype.constructor and assert is "NumberTrait"?
 NumberTrait.prototype.forSymbol = function(symbol) {
     var trait = this.traits[symbol];
     return trait ? trait : this.traits["null"];
@@ -279,9 +278,61 @@ EvenNumberTrait.prototype = {
         return "even";
     },
     assert: function(exprResult) {
-        return exprResult % 2 == 0;
+        return exprResult & 1 == 0; // check if least significant bit is set
     }
 };
+
+function OddNumberTrait() {}
+OddNumberTrait.prototype = new NumberTrait();
+OddNumberTrait.prototype = {
+    getKey: function() {
+        return "odd";
+    },
+    assert: function(exprResult) {
+        return exprResult & 1 == 1; // check if least significant bit is set
+    }
+};
+
+function RoundBinaryNumberTrait() {}
+RoundBinaryNumberTrait.prototype = new NumberTrait();
+RoundBinaryNumberTrait.prototype = {
+    getKey: function() {
+        return "round-binary";
+    },
+    assert: function(n) {
+        // derived from: http://blog.faultylabs.com/2011.php?p=jsbitfun
+        n >>>= 0 /* force uint32 */
+        if(n == 0) return true; // zero is round-binary
+        var popcnt = 1;
+        n &= n - 1; // i.e., if 100 binary, then make it 011 binary, which should 'catch' any remaining set bits
+        return n == 0; // i.e., none of the less significant bits are set, so it's round-binary
+    }
+};
+
+function PrimeNumberTrait() {
+    // for now, max needed is 13x13 (king's number times itself): 169; hence max needed prime: 173
+    // from: http://primes.utm.edu/lists/small/1000.txt
+    this.primes = [
+        2,      3,      5,      7,     11,     13,     17,     19,     23,     29,
+        31,     37,     41,     43,    47,     53,     59,     61,     67,     71,
+        73,     79,     83,     89,    97,     101,    103,    107,    109,    113,
+        127,    131,    137,    139,   149,    151,    157,    163,    167,    173
+    ]
+}
+PrimeNumberTrait.prototype = new NumberTrait();
+PrimeNumberTrait.prototype = {
+    getKey: function() {
+        return "prime";
+    },
+    assert: function(n) {
+        for(var i = 0; i < this.primes.length; i++) {
+            if(n == this.primes[i]) return true;
+        }
+        return false;
+    }
+};
+
+
 
 // not really an abstract class, but meant to be used pretty much like one,
 // but as an instance, which facilitates testing (via injection), etc.;
@@ -290,7 +341,10 @@ var numberTrait = new NumberTrait();
 
 var traits = [
     new NullNumberTrait(),
-    new EvenNumberTrait()
+    new EvenNumberTrait(),
+    new OddNumberTrait(),
+    new RoundBinaryNumberTrait(),
+    new PrimeNumberTrait()
 ];
 numberTrait.registerAll(traits);
 
@@ -311,8 +365,12 @@ function RuleManager() {
     };
 
     var ruleKeys = []; // for random selection of rule by key
+    var forcedRuleName = null;
 
     return {
+        forceRule: function(theForcedRuleName) {
+            forcedRuleName = theForcedRuleName;
+        },
         loadRules: function(rulesPath) {
 
             console.log("RuleManager: loadRules ...");
@@ -347,7 +405,17 @@ function RuleManager() {
         },
         chooseRule: function(ruleName) {
             ruleName = (typeof ruleName == 'undefined' ) ? null : ruleName;
-            var chosenRule = rules[ruleKeys[Math.floor(Math.random() * ruleKeys.length)]];
+            var chosenRule = null;
+            if(forcedRuleName) {
+                chosenRule = rules[forcedRuleName];
+                if(!chosenRule) {
+                    console.log("ERROR: couldn't find forcedRule: " + forcedRuleName +
+                        "; defaulting to random selection");
+                    chosenRule = rules[ruleKeys[Math.floor(Math.random() * ruleKeys.length)]];
+                }
+            } else {
+                chosenRule = rules[ruleKeys[Math.floor(Math.random() * ruleKeys.length)]];
+            }
             console.log("RuleManager: chooseRule: chosenRule: " + chosenRule.name);
             return chosenRule;
         },
@@ -410,7 +478,7 @@ function RuleManager() {
 
 var ruleMgr = new RuleManager();
 ruleMgr.loadRules(rulesPath);
-
+if(forcedRule) ruleMgr.forceRule(forcedRule);
 
 function BruteForceFuncEquivChecker(theRuleMgr) {
 
