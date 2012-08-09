@@ -191,108 +191,66 @@
         </div>
 
         <div id="helpModal">
-            <center><b>Help Page</b></center><br/><br/>
+            <center><b>Help Page</b></center><br/>
             <div style="overflow:auto; height:300px">
                 <b>General Description</b><br/>
                 <a href="http://en.wikipedia.org/wiki/Robert_Abbott_(game_designer)" target="_blank">Robert Abbott</a> invented
                 the card-game <a href="http://en.wikipedia.org/wiki/Eleusis_(card_game)" target="_blank">Eleusis</a>
-                in the 1950's.  The game may be considered a game of
-                <a href="http://en.wikipedia.org/wiki/Inductive_reasoning" target="_blank">inductive reasoning</a> in that the object of the
-                game is to infer a rule that determines a sequence of playing-cards that develops over the course of the game as
-                players play cards from their respective hands.
+                in the 1950's.  It may be considered a game of
+                <a href="http://en.wikipedia.org/wiki/Inductive_reasoning" target="_blank">inductive reasoning</a>, because the object of the
+                game is to guess a rule that controls a sequence of playing-cards, a sequence that develops over the course of the game as
+                players play cards from their hands.
                 <br/><br/>
-                <b>Typical Game-Play Scenario</b><br/>
-                <ul>
-                    <li>
-                        The game may be played by a single player against the dealer, or by as many as three players against the dealer.
-                    </li>
-                    <li>
-                        A prospective player uses either the "Create Game" option or the "Join Game" option to enter a game.
-                    </li>
-                    <li>
-                        At the beginning of a game, there is a single card in the common area and five cards dealt to the first player,
-                        toward the bottom of the middle of the view.  In the middle of the view is a chat-window which also serves as
-                        the place in which the game-app puts any system-generated messages.  If another player joins the game, his/her
-                        cards appear on the lefthand side of the view, with his/her username at the top of that area. In any case,
-                        by this time, the game-app has randomly chosen a "mystery-rule", which it is the object of the game to infer.
-                    </li>
-                    <li>
-                        Whoever created (i.e., "started") the game has the first turn, and then players take turns in the order
-                        in which they joined the game.
-                    </li>
-                    <li>
-                        Then, in turn-order, players take any of the following actions, not necessarily in this order:
-                        <ul>
-                            <li>a player clicks on one of his/her cards, to play that card</li>
-                            <ul>
-                                <li>
-                                    The game-app checks the played card against the "mystery-rule" to see if it satisfies it;
-                                    If the rule is not satisfied, then the card is rejected and the corresponding two-card
-                                    sequence is added to the "Failed Sequences" dialog's contents (see: "Show Rejecteds")
-                                    and the player's turn is over. If the rule is satisified, then that card is automatically
-                                    removed from that player's hand and added to the series of cards in the common area.
-                                </li>
-                            </ul>
-                            <li>
-                                Typically, a player needs to simply randomly play cards for a while in order to try to get a
-                                sense of the mystery-rule.  After a while, the player may have an hypothesis.  Based on that
-                                hypothesis, s/he may click on the "No Play" button, to which the game-app will respond with
-                                the result of its attempt to play any of that player's cards that might be valid.  If a valid
-                                card is found, the game-app plays it for that player; otherwise, the game-app indicates this
-                                result, adds the corresponding series of two-card invalid sequences to the "Failed Sequences"
-                                dialog's contents (see: "Show Rejecteds), and draws a new card for that player. That ends that
-                                player's turn.
-                            </li>
-                            <li>
-                                Eventually, the player will want to make a guess at the mystery-rule, by clicking on the "Guess Rule"
-                                button.  In the "Guess Rule" dialog, the user needs to make use of the information provided therein
-                                (essentially, the relevent "API Documentation" on the Card class) and type out the body of his/her
-                                Rule-Guess.
-                                <ul>
-                                    <li>
-                                        A Rule-Guess may consist of any valid JavaScript-code (for which see
-                                        <a href="https://developer.mozilla.org/en/JavaScript/Guide" target="_blank">this for syntax and standard JavaScript API</a>
-                                        and <a href="http://www.3site.eu/jstests/jhp/" target="_blank">this for a handy online JavaScript "playground"</a>).
-                                        That code may make use of any or none of the
-                                        details provided about the Card class (the card's "ordinal" value, its suit, its suit's name,
-                                        and its suit's color). The ordinal-value of the two cards might be added together, multiplied
-                                        together, subtracted one from the other (optionally with the absolute value then taken); then,
-                                        that value (informally, the "ordinal result") may be tested for various possible characteristics,
-                                        such as evenness, oddness, whether or not prime, whether or not a "round binary" number, etc.
-                                        Meanwhile, the guess may take into account either or both cards' suit: either the suit generally
-                                        or specifically the suit's name or its color, or both.
-                                    </li>
-                                    <li>
-                                        Generally, a rule (whether a rule-guess or the mystery-rule) consists of a single (though possibly
-                                        complex) logical assertion about any two-card sequence in a single shuffled normal 52-card deck of
-                                        playing-cards.
-                                        <ul>
-                                            <li>
-                                                <b>NOTE:</b> the mystery-rule may impose restrictions on card-sequence for which the player
-                                                has, in a sense, "no empirical evidence", i.e., which the currently displayed series of cards
-                                                in the common area does not manifest or demonstrate.  The player has no way to
-                                                learn of such constraints except through experimentation in the form of rule-guessing.
-                                            </li>
-                                            <ul>
-                                                <li>
-                                                    If a Rule-Guess does not permit a sequence that the mystery-rule permits, the game-app
-                                                    will indicate this fact with appropriate messaging and by adding to the "Hypothetical
-                                                    Sequences" dialog's contents (see: "Show Hypos").  This corresponds with a scientist's
-                                                    positing of a theory based upon incomplete evidence.
-                                                </li>
-                                            </ul>
-                                        </ul>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li>
-                                Eventually, either a player correctly guesses the rule and thereby wins, or s/he clicks on the
-                                "Show Rule" button, which shows a dialog containing the definition of the mystery-rule, at which
-                                time the game is over and the "dealer" has won.
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
+                <b><u>FAQ</u></b><br/>
+
+                    <b>Q: How do I start?</b><br/>
+                    A: There are two ways to start:
+                    <ol style="margin-top: 0px">
+                        <li>Click on the "Join Game" choice-list and choose a game to enter.</li>
+                        <li>
+                            Enter a name for your own game in the field right under the "Start Game" button
+                            and then click on that button.
+                        </li>
+                    </ol>
+                    <b>Q: Then what?</b><br/>
+                <b>A:</b> Then, you click on one of your cards, which are the cards lined up along the bottom of the screen.
+                       At first, it doesn't matter which one you click on, because you have no idea what the "Mystery Rule"
+                       is yet.<br/>
+                       &nbsp;&nbsp;&nbsp;&nbsp;Then, you see some text appear in the chat-window.  That's the game telling you about the card you just
+                       played.  The card you played is either accepted or rejected.  If it's accepted, then it "satisfies" the
+                       "Mystery Rule".  If it's rejected, it violates the "Mystery Rule".<br/>
+                    <b>Q: What do I do if the card I played is rejected?</b><br/>
+                <b>A:</b> You keep playing your cards, hoping they'll be accepted; and, if none of them are accepted, then you
+                       can hit the button "No Play", which means you don't think you have any playable cards at the moment.
+                       The game, then, will either play one of your cards for you (if you haven't already played it, and if
+                       it's actually playable) or it will give you a new card to play.<br/>
+                    <b>Q: Why should I care about any of my cards being accepted?</b><br/>
+                <b>A:</b> Because every time that happens, you're getting a hint about the "Mystery Rule".  You can examine the
+                       relationship between the last card and the one right before it and try to see a pattern there.<br/>
+                    <b>Q: A pattern? What kind of pattern?</b><br/>
+                <b>A:</b> A logical and/or mathematical pattern. The patterns can be like any of the following ones
+                          (these are just a few examples):
+                    <ul style="margin-top: 0px">
+                        <li>"card1's number is less than card2's number"</li>
+                        <li>"card1's suitName is not equal to card2's suitName"</li>
+                        <li>"card1's number plus card2's number is even and card1's suitColor is equal to card2's suitColor"</li>
+                    </ul>
+                    <b>Q: card1? card2? What are they?</b><br/>
+                <b>A:</b> It's easier to think about card2 first.  card2 is the very last card in the series of cards "on the table",
+                      and card1 is the card right before it in that sequence of cards.  But you have to think about card1 and card2
+                      in a "general" way.  By "general", I mean this: relative to card1 (which can be any card), card2 is the card
+                      right after it in the sequence; or, the other way around: relative to card2, card1 is the card right before it.<br/>
+                    <b>Q: I think I have an idea about the "Mystery Rule".  So, what now?</b><br/>
+                <b>A:</b> Now, you click on the button "Guess Rule"; and, in the dialog-box that pops up, you make selections
+                          in the widgets there, to construct your guess at the "Mystery Rule"; then, you click "Submit Guess",
+                          and the game takes a few seconds to "think" about your guess and then tells you if your guess is correct.
+                          If it is correct, then you've won the game!  If it's not correct, then the game tells about a sequence of
+                          cards that your rule-guess needs to handle differently so your guess works the same as the "Mystery Rule".<br/>
+                    <b>Q: What if I just can't figure it out?</b><br/>
+                <b>A:</b> You can click the button "Show Mystery Rule", and that will show you the rule expressed in English. You
+                          can then figure out which selections you would have needed to make in the "Guess Rule" dialog to guess the
+                          "Mystery Rule" correctly.  So, then, you can start another game and try again with a new "Mystery Rule".
+
             </div>
         </div>
 
