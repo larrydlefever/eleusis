@@ -278,7 +278,7 @@ EvenNumberTrait.prototype = {
         return "even";
     },
     assert: function(exprResult) {
-        return exprResult & 1 == 0; // check if least significant bit is set
+        return exprResult % 2 == 0; // check if least significant bit is set
     }
 };
 
@@ -289,7 +289,7 @@ OddNumberTrait.prototype = {
         return "odd";
     },
     assert: function(exprResult) {
-        return exprResult & 1 == 1; // check if least significant bit is set
+        return exprResult % 2 == 1; // check if least significant bit is set
     }
 };
 
@@ -598,13 +598,16 @@ function BruteForceFuncEquivChecker(theRuleMgr) {
         setGameManager: function(theGameMgr) {
             gameMgr = theGameMgr;
         },
-        checkGuess: function(gameID, callerUname, guessContent) {
+        checkGuess: function(gameID, callerUname, guessContent, guessContentEng) {
             var result = {
                 status: "STARTED",
                 gameID: gameID,
                 callerUname: callerUname,
-                handler: 'playerGuessCheckAsync'
+                handler: 'playerGuessCheckAsync',
+                guessContentEng: guessContentEng
             };
+
+            console.log("checkGuess: guessContentEng: " + guessContentEng);
 
             var game = gameMgr.getGameById(gameID);
             console.log("BruteForceFuncEquivChecker: checkGuess: game: " + util.inspect(game, true));
@@ -764,7 +767,7 @@ function Game(gameID, gameName, ruleManager, theBruteForceFuncEquivChecker, firs
         addCardToCommon: function(card) {
             common.push(card);
         },
-        checkRuleGuess: function(callerUname, guessContent) {
+        checkRuleGuess: function(callerUname, guessContent, guessContentEng) {
 
             var result = true;
             log("Game checkRuleGuess: common.length: " + common.length);
@@ -791,7 +794,7 @@ function Game(gameID, gameName, ruleManager, theBruteForceFuncEquivChecker, firs
             }
 
             if(result === true) {
-                bruteForceFuncEquivChecker.checkGuess(id, callerUname, guessContent);
+                bruteForceFuncEquivChecker.checkGuess(id, callerUname, guessContent, guessContentEng);
                 return {
                     status: "PENDING",
                     statusMsg: "Checking submitted Rule-Guess ..."
@@ -943,10 +946,10 @@ function GameManager(ruleManager, theBruteForceFuncEquivChecker) {
             var common = game.getCommon();
             return common[common.length -1];
         },
-        checkRuleGuess: function(gameID, callerUname, guessContent) {
+        checkRuleGuess: function(gameID, callerUname, guessContent, guessContentEng) {
             var game = gamesByID[gameID];
             console.log("GameManager checkRuleGuess: guessContent= " + guessContent);
-            return game.checkRuleGuess(callerUname, guessContent);
+            return game.checkRuleGuess(callerUname, guessContent, guessContentEng);
         },
         getGames: function() {
             var games = {};
@@ -1385,7 +1388,7 @@ function CommandManager() {
         var callerUname = dataPosted.callerUname;
         console.log("in guessRuleCmd: callerUname: " + util.inspect(callerUname, true, null));
 
-        var guessResult = gameMgr.checkRuleGuess(gameID, callerUname, guessContent);
+        var guessResult = gameMgr.checkRuleGuess(gameID, callerUname, guessContent, guessContentEng);
 
         var actionMsg = callerUname + " guesses rule";
         guessResult['actionMsg'] = actionMsg;

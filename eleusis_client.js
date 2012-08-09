@@ -363,6 +363,32 @@ function EleusisClient(theHost) {
         }
     }
 
+    var guessCount = 1;
+
+    function createGuessResultForDOM() {
+        var $divClone = $("#priorGuess-1").clone(false);
+        $divClone.css('display', 'block');
+        $divClone.find("*[id]").andSelf().each(function() {
+                $(this).attr('id',function(i,id) {
+                    log("priorGuess id: " + id);
+                    var suffix, uscoreIdx;
+                    if((uscoreIdx = id.lastIndexOf('-')) != -1) {
+                        log("uscoreIdx: " + uscoreIdx);
+                        suffix = id.substring(uscoreIdx+1);
+                        if($.isNumeric(suffix)) {
+                            log("isNumeric: suffix: " + suffix);
+                            id = id.substring(0, uscoreIdx+1) + (parseInt(suffix) + guessCount);
+                        }
+                    }
+                    log("new priorGuess id: " + id);
+                    return id;
+                })
+            }
+        );
+        guessCount++;
+        return $divClone;
+    }
+
     function playerGuessCheckAsync(msg) {
 
         log("playerGuessCheckAsync: ...");
@@ -372,6 +398,14 @@ function EleusisClient(theHost) {
             setMsg('#guessResult', msg.statusMsg, true);
         }
 
+        var $guessResultForDOM = createGuessResultForDOM();
+        $guessResultForDOM.prependTo('#guesses');
+
+        log("playerGuessCheckAsync: msg.guessContentEng: " + msg.guessContentEng);
+        $guessResultForDOM.find("div[id|='eng-priorGuess']").html(msg.guessContentEng);
+
+        var resultMsg = null;
+
         if(msg.status == 'FAILED') {
 
             var seq = [
@@ -379,10 +413,14 @@ function EleusisClient(theHost) {
                 new Card(msg.cardSeq[1].ordinal, msg.cardSeq[1].suitID)
             ];
 
+            updateSequencesUI('#sequence-priorGuess-' + guessCount, seq);
+
             if(msg.mysteryRuleAccepts === true) {
-                updateSequencesUI('#hyposAccepted', seq);
+                //updateSequencesUI('#hyposAccepted', seq);
+                resultMsg = "This card-sequence (to the left here) is accepted by the Mystery Rule, but it's not accepted by this guess.";
             } else {
-                updateSequencesUI('#hyposRejected', seq);
+                //updateSequencesUI('#hyposRejected', seq);
+                resultMsg = "This card-sequence (to the left here) is rejected by the Mystery Rule, but it's accepted by this guess.";
             }
 
             setMsg('#serverMsgs', "for " + msg.callerUname + "'s rule-guess: eleusis-response: " + msg.statusMsg);
@@ -393,8 +431,12 @@ function EleusisClient(theHost) {
         } else {
             $('#guessedRuleDescr').html(msg.ruleDescr);
             setMsg('#serverMsgs', "for " + msg.callerUname + "'s rule-guess: eleusis-response: " + msg.statusMsg);
+            $('#sequence-priorGuess-' + guessCount).html("The Winning<br/>Guess!");
             doSetGameOverWithRemote(true);
         }
+
+        resultMsg = resultMsg ? resultMsg : "This guess is equivalent to the Mystery Rule.";
+        $guessResultForDOM.find("div[id|='msg-priorGuess']").html(resultMsg);
     }
 
     function playerCreatedGame(msg) {
@@ -522,9 +564,11 @@ function EleusisClient(theHost) {
 
     function playerGuessedRule(msg) {
         setMsg('#serverMsgs', msg.msg + "; eleusis-response: " + msg.statusMsg);
+        /*
         var ruleArea = $('<textarea rows="5" cols="75"></textarea>');
         ruleArea.text(msg.guessContentEng);
         ruleArea.prependTo('#guesses');
+        */
     }
 
     function playerSeesRule(msg) {
@@ -1131,6 +1175,16 @@ function EleusisClient(theHost) {
         showRuleGuess: function() {
             log(ruleGuess.toJS());
             log(ruleGuess.toEng());
+        },
+        updateGuessHistory: function() {
+            var seq = [
+                new Card(1, 1),
+                new Card(2, 3)
+            ];
+
+            $('#rejected-sequence-priorGuess-1').html("The Winning<br/> Rule-Guess!");
+            updateSequencesUI('#rejected-sequence-priorGuess-2', seq);
+            updateSequencesUI('#rejected-sequence-priorGuess-3', seq);
         },
         setMsg: function(msg) {
             setMsg('#serverMsgs', msg);
