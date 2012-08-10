@@ -416,10 +416,8 @@ function EleusisClient(theHost) {
             updateSequencesUI('#sequence-priorGuess-' + guessCount, seq);
 
             if(msg.mysteryRuleAccepts === true) {
-                //updateSequencesUI('#hyposAccepted', seq);
                 resultMsg = "This card-sequence (to the left here) is accepted by the Mystery Rule, but it's not accepted by this guess.";
             } else {
-                //updateSequencesUI('#hyposRejected', seq);
                 resultMsg = "This card-sequence (to the left here) is rejected by the Mystery Rule, but it's accepted by this guess.";
             }
 

@@ -38,7 +38,7 @@ $(document).ready(function() {
     $('#guessedRuleDescr').val('(still unknown)');
     $('#guessContent').val('');
 
-    //$('#guesses').empty();
+    $('#guesses').empty();
 
     $('#ruleDescription').empty();
     $('#ruleContent').val('');
@@ -160,9 +160,9 @@ $(document).ready(function() {
     });
 
     $('#ruleGuessBtn').click(function() {
-//        if(eleusis.assertShowModal('#guessRuleModal')) {
+        if(eleusis.assertShowModal('#guessRuleModal')) {
             $('#guessRuleModal').dialog('open');
-//        }
+        }
         return false;
     });
     $('#showRuleBtn').click(function() {
@@ -173,9 +173,9 @@ $(document).ready(function() {
         return false;
     });
     $('#showGuessesBtn').click(function() {
-        //if(eleusis.assertShowModal('#showGuessesModal')) {
+        if(eleusis.assertShowModal('#showGuessesModal')) {
             $('#showGuessesModal').dialog('open');
-        //}
+        }
         return false;
     });
     $('#showRegectedsBtn').click(function() {
