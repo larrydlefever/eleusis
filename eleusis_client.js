@@ -1176,16 +1176,6 @@ function EleusisClient(theHost) {
             log(ruleGuess.toJS());
             log(ruleGuess.toEng());
         },
-        updateGuessHistory: function() {
-            var seq = [
-                new Card(1, 1),
-                new Card(2, 3)
-            ];
-
-            $('#rejected-sequence-priorGuess-1').html("The Winning<br/> Rule-Guess!");
-            updateSequencesUI('#rejected-sequence-priorGuess-2', seq);
-            updateSequencesUI('#rejected-sequence-priorGuess-3', seq);
-        },
         setMsg: function(msg) {
             setMsg('#serverMsgs', msg);
         },

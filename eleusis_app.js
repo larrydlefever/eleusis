@@ -92,9 +92,6 @@ $(document).ready(function() {
             "Close": function() {
                 $(this).dialog("close");
             }
-        },
-        open: function(evt, ui) {
-            eleusis.updateGuessHistory();
         }
     });
 
