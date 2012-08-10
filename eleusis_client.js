@@ -564,11 +564,6 @@ function EleusisClient(theHost) {
 
     function playerGuessedRule(msg) {
         setMsg('#serverMsgs', msg.msg + "; eleusis-response: " + msg.statusMsg);
-        /*
-        var ruleArea = $('<textarea rows="5" cols="75"></textarea>');
-        ruleArea.text(msg.guessContentEng);
-        ruleArea.prependTo('#guesses');
-        */
     }
 
     function playerSeesRule(msg) {
@@ -744,11 +739,26 @@ function EleusisClient(theHost) {
         log("handleClaimNoPlay: (handled entirely in playerClaimedNoPlay)");
     }
 
+    var ellipsisStr = ".";
+
+    function updateEllipsis() {
+        var $ell = $('#progress-ellipsis');
+        if($ell.length > 0) { // the node exists (in the DOM)
+            if(ellipsisStr.length > 4) ellipsisStr = ".";
+            ellipsisStr += ".";
+            $ell.html(ellipsisStr);
+            setTimeout(updateEllipsis, 1000);
+        }
+    }
+
     function handleGuess(data) {
         var statusMsg = data.result.guessRuleResult.statusMsg;
+        statusMsg += "<span id='progress-ellipsis'></span>";
         var actionMsg = data.result.guessRuleResult.actionMsg;
         //NOTE: this is always just a "PENDING" message: purely messaging
         setMsg('#guessResult', statusMsg, true);
+
+        updateEllipsis();
     }
 
     function doPlayCardForPlayer(user, playedCard) {
